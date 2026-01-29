@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XKI Migration - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🔧 Admin Dashboard</h1>
+            <p>XKI Migration Management</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Auth Section -->
+        <section id="auth-section" class="auth-section">
+            <h2>Authentication</h2>
+            <input type="password" id="api-key" placeholder="Enter Admin API Key" />
+            <button id="btn-auth" class="btn btn-primary">Authenticate</button>
+        </section>
+
+        <!-- Dashboard (hidden until auth) -->
+        <div id="dashboard" style="display: none;">
+            
+            <!-- Stats -->
+            <section class="stats-section">
+                <div class="stat-card">
+                    <h3>Pending Claims</h3>
+                    <p id="stat-pending" class="highlight-pending">--</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Completed</h3>
+                    <p id="stat-completed" class="highlight-success">--</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Distributed</h3>
+                    <p id="stat-distributed">-- XKI</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Claim Rate</h3>
+                    <p id="stat-rate">--%</p>
+                </div>
+            </section>
+
+            <!-- Filters -->
+            <section class="filters-section">
+                <select id="filter-status">
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="completed">Completed</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="all">All</option>
+                </select>
+                <button id="btn-refresh" class="btn btn-secondary">🔄 Refresh</button>
+                <button id="btn-export" class="btn btn-secondary">📥 Export CSV</button>
+            </section>
+
+            <!-- Claims Table -->
+            <section class="claims-section">
+                <h2>Claims</h2>
+                <table id="claims-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Ki Address</th>
+                            <th>ETH Address</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="claims-body">
+                        <!-- Claims will be loaded here -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+
+        <!-- Claim Detail Modal -->
+        <div id="claim-modal" class="modal">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <h2>Claim Details</h2>
+                <div id="claim-detail">
+                    <p><strong>ID:</strong> <span id="detail-id"></span></p>
+                    <p><strong>Ki Address:</strong> <span id="detail-ki" class="address"></span></p>
+                    <p><strong>ETH Address:</strong> <span id="detail-eth" class="address"></span></p>
+                    <p><strong>Amount:</strong> <span id="detail-amount"></span> XKI</p>
+                    <p><strong>Signature:</strong> <span id="detail-sig" class="address"></span></p>
+                    <p><strong>Status:</strong> <span id="detail-status"></span></p>
+                    <p><strong>Created:</strong> <span id="detail-created"></span></p>
+                    
+                    <hr>
+                    
+                    <h3>Update Claim</h3>
+                    <select id="update-status">
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="completed">Completed</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                    
+                    <input type="text" id="update-txhash" placeholder="TX Hash (for completed)" />
+                    <textarea id="update-notes" placeholder="Admin notes (for rejection)"></textarea>
+                    
+                    <button id="btn-update" class="btn btn-primary">Update Claim</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Ki Chain Foundation - Admin Panel</p>
+        </div>
+    </footer>
+
+    <script src="admin.js"></script>
+</body>
+</html>
