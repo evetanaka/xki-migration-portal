@@ -1,5 +1,4 @@
 // XKI Migration Portal - App Logic
-// Combines Gemini UI template system with Keplr integration
 
 const API_BASE = '/api';
 
@@ -24,17 +23,8 @@ const TITLES = {
     5: "Submission Complete"
 };
 
-// DOM Elements
-const stepContent = document.getElementById('step-content');
-const stepTitle = document.getElementById('step-title');
-const stepIndicator = document.getElementById('step-indicator');
-const progressBar = document.getElementById('progress-bar');
-const loadingIndicator = document.getElementById('loading-indicator');
-const walletStatus = document.getElementById('wallet-status');
-
-// Initialize
+// Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    renderStep(1);
     loadStats();
     if (typeof lucide !== 'undefined') lucide.createIcons();
 });
@@ -53,12 +43,20 @@ async function loadStats() {
         if (claimed) claimed.textContent = formatNumber(data.totalClaimed);
         if (countdown) countdown.textContent = formatCountdown(data.deadline);
     } catch (e) {
-        console.log('Stats API not available');
+        console.log('Stats not available yet');
     }
 }
 
 // Render Step
 function renderStep(step) {
+    const stepContent = document.getElementById('step-content');
+    const stepTitle = document.getElementById('step-title');
+    const stepIndicator = document.getElementById('step-indicator');
+    const progressBar = document.getElementById('progress-bar');
+    const walletStatus = document.getElementById('wallet-status');
+    
+    if (!stepContent) return;
+    
     stepContent.classList.add('opacity-0');
     
     setTimeout(() => {
@@ -90,12 +88,12 @@ function renderStep(step) {
         }
         
         // Update UI
-        stepTitle.textContent = TITLES[step];
-        stepIndicator.textContent = `Step 0${Math.min(step, 4)} / 04`;
-        progressBar.style.width = `${(step / 5) * 100}%`;
+        if (stepTitle) stepTitle.textContent = TITLES[step];
+        if (stepIndicator) stepIndicator.textContent = `Step 0${Math.min(step, 4)} / 04`;
+        if (progressBar) progressBar.style.width = `${(step / 5) * 100}%`;
         
         // Update wallet status
-        if (step > 1 && state.kiAddress) {
+        if (step > 1 && state.kiAddress && walletStatus) {
             walletStatus.textContent = truncateAddress(state.kiAddress);
             walletStatus.className = "px-3 py-1 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10";
         }
@@ -109,17 +107,19 @@ function renderStep(step) {
 function transitionToStep(nextStep) {
     if (isProcessing) return;
     isProcessing = true;
-    loadingIndicator.classList.remove('hidden');
+    
+    const loadingIndicator = document.getElementById('loading-indicator');
+    if (loadingIndicator) loadingIndicator.classList.remove('hidden');
     
     setTimeout(() => {
         isProcessing = false;
-        loadingIndicator.classList.add('hidden');
+        if (loadingIndicator) loadingIndicator.classList.add('hidden');
         currentStep = nextStep;
         renderStep(nextStep);
     }, 800);
 }
 
-// === Event Handlers (called from HTML) ===
+// === Event Handlers (called from HTML onclick) ===
 
 // Step 1 -> 2: Connect Keplr
 async function handleConnect() {
@@ -127,7 +127,7 @@ async function handleConnect() {
     if (btn) btn.innerHTML = "Connecting...";
     
     if (!window.keplr) {
-        alert('Please install Keplr extension');
+        alert('Please install Keplr extension to connect your Ki Chain wallet.');
         if (btn) btn.innerHTML = "Connect Keplr";
         return;
     }
@@ -141,7 +141,7 @@ async function handleConnect() {
         await checkEligibility();
     } catch (e) {
         console.error('Keplr error:', e);
-        alert('Error connecting to Keplr');
+        alert('Error connecting to Keplr. Make sure Ki Chain is configured in your wallet.');
         if (btn) btn.innerHTML = "Connect Keplr";
     }
 }
@@ -156,9 +156,9 @@ async function checkEligibility() {
             state.balance = data.balance;
             transitionToStep(2);
         } else if (data.claimed) {
-            alert('This address has already claimed');
+            alert('This address has already claimed.');
         } else {
-            alert('This address is not eligible for migration');
+            alert('This address is not eligible for migration.');
         }
     } catch (e) {
         // Demo mode - simulate eligibility
@@ -175,8 +175,9 @@ function goToStep(step) {
 // Check ETH input validity
 function checkInput(input) {
     const btn = document.getElementById('btn-review');
-    state.ethAddress = input.value;
+    if (!btn) return;
     
+    state.ethAddress = input.value;
     const isValid = state.ethAddress.match(/^0x[a-fA-F0-9]{40}$/);
     
     if (isValid) {
@@ -264,35 +265,13 @@ async function handleSign() {
     transitionToStep(5);
 }
 
-// === Helpers ===
-
-function formatNumber(num) {
-    if (!num) return '—';
-    return new Intl.NumberFormat().format(num);
-}
-
-function formatCountdown(deadline) {
-    if (!deadline) return '—';
-    const now = Date.now();
-    const diff = new Date(deadline) - now;
-    if (diff <= 0) return 'Ended';
-    
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-    
-    return `${days}j ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m`;
-}
-
-function truncateAddress(addr) {
-    if (!addr) return '';
-    return addr.slice(0, 8) + '...' + addr.slice(-4);
-}
-
 // Check claim status by Ki address
 async function checkStatus() {
     const input = document.getElementById('check-address');
     const resultDiv = document.getElementById('status-result');
+    
+    if (!input || !resultDiv) return;
+    
     const address = input.value.trim();
     
     if (!address.startsWith('ki1')) {
@@ -357,4 +336,29 @@ async function checkStatus() {
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+}
+
+// === Helpers ===
+
+function formatNumber(num) {
+    if (!num) return '—';
+    return new Intl.NumberFormat().format(num);
+}
+
+function formatCountdown(deadline) {
+    if (!deadline) return '—';
+    const now = Date.now();
+    const diff = new Date(deadline) - now;
+    if (diff <= 0) return 'Ended';
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${days}j ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m`;
+}
+
+function truncateAddress(addr) {
+    if (!addr) return '';
+    return addr.slice(0, 8) + '...' + addr.slice(-4);
 }
