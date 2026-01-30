@@ -6,19 +6,18 @@
     <title>XKI Migration Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <header>
         <div class="container">
-            <h1><span>XKI</span> Migration Portal</h1>
+            <h1>XKI Migration Portal</h1>
             <p>Migrate your Ki Chain tokens to Ethereum</p>
         </div>
     </header>
 
     <main class="container">
-        <!-- Stats -->
         <section class="stats-section">
             <div class="stat-card">
                 <h3>Total Eligible</h3>
@@ -34,32 +33,31 @@
             </div>
         </section>
 
-        <!-- Claim -->
         <section class="claim-section">
             <h2>Claim Your Tokens</h2>
 
             <div id="step-1" class="step active">
-                <h3>Connect Keplr Wallet</h3>
+                <h3>Step 1 — Connect Keplr Wallet</h3>
                 <p>Connect your Keplr wallet to verify your Ki Chain holdings.</p>
                 <button id="btn-connect-keplr" class="btn btn-primary">Connect Keplr</button>
-                <p id="ki-address" class="address" style="display: none;"></p>
+                <div id="ki-address" class="address" style="display: none;"></div>
             </div>
 
             <div id="step-2" class="step">
-                <h3>Check Eligibility</h3>
+                <h3>Step 2 — Check Eligibility</h3>
                 <p>Your balance: <strong id="eligible-balance">—</strong> XKI</p>
                 <p id="eligibility-status"></p>
             </div>
 
             <div id="step-3" class="step">
-                <h3>Enter Ethereum Address</h3>
-                <p>Provide the Ethereum address where you want to receive your tokens.</p>
+                <h3>Step 3 — Enter Ethereum Address</h3>
+                <p>Enter the Ethereum address where you want to receive your tokens.</p>
                 <input type="text" id="eth-address" placeholder="0x...">
                 <button id="btn-prepare" class="btn btn-secondary">Prepare Claim</button>
             </div>
 
             <div id="step-4" class="step">
-                <h3>Sign with Keplr</h3>
+                <h3>Step 4 — Sign with Keplr</h3>
                 <p>Sign the message to prove ownership of your Ki Chain wallet.</p>
                 <button id="btn-sign" class="btn btn-primary">Sign Message</button>
             </div>
@@ -73,7 +71,6 @@
             </div>
         </section>
 
-        <!-- Status Check -->
         <section class="status-section">
             <h2>Check Claim Status</h2>
             <input type="text" id="check-address" placeholder="Enter ki1... address">
@@ -83,9 +80,7 @@
     </main>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2026 Ki Chain Foundation</p>
-        </div>
+        <p>&copy; 2026 Ki Chain Foundation</p>
     </footer>
 
     <script src="js/app.js"></script>
