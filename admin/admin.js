@@ -54,6 +54,12 @@ function setupEventListeners() {
     elements.filterStatus.addEventListener('change', loadClaims);
     elements.btnUpdate.addEventListener('click', updateClaim);
     
+    // Import button
+    const btnImport = document.getElementById('btn-import');
+    if (btnImport) {
+        btnImport.addEventListener('click', importSnapshot);
+    }
+    
     // Modal close
     document.querySelector('.close').addEventListener('click', closeModal);
     
@@ -234,6 +240,7 @@ function showDashboard() {
     
     loadStats();
     loadClaims();
+    loadImportStats();
 }
 
 // API calls with auth token
@@ -409,6 +416,68 @@ async function updateClaim() {
         }
     } catch (e) {
         alert('Error updating claim');
+    }
+}
+
+// Import Snapshot
+async function importSnapshot() {
+    const csvUrl = document.getElementById('csv-url').value.trim();
+    const btn = document.getElementById('btn-import');
+    const resultEl = document.getElementById('import-result');
+    
+    if (!csvUrl) {
+        alert('Please enter a CSV URL');
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Importing...';
+    resultEl.classList.add('hidden');
+    
+    try {
+        const res = await apiCall('/admin/import-snapshot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ csvUrl, minBalance: 0 })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            resultEl.className = 'mt-4 text-sm text-emerald-400';
+            resultEl.textContent = `✓ ${data.message}`;
+        } else {
+            resultEl.className = 'mt-4 text-sm text-red-400';
+            resultEl.textContent = `✗ ${data.error || 'Import failed'}`;
+        }
+        resultEl.classList.remove('hidden');
+        
+        // Reload stats
+        loadImportStats();
+        
+    } catch (e) {
+        resultEl.className = 'mt-4 text-sm text-red-400';
+        resultEl.textContent = `✗ Error: ${e.message}`;
+        resultEl.classList.remove('hidden');
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="upload" class="w-3 h-3"></i> Import Snapshot';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Load import stats
+async function loadImportStats() {
+    try {
+        const res = await apiCall('/admin/import-stats');
+        const data = await res.json();
+        
+        const el = document.getElementById('eligible-count');
+        if (el) {
+            el.textContent = formatNumber(data.eligibleAddresses || 0);
+        }
+    } catch (e) {
+        console.error('Error loading import stats:', e);
     }
 }
 
