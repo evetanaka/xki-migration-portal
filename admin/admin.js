@@ -10,10 +10,13 @@ const elements = {
     dashboard: document.getElementById('dashboard'),
     apiKeyInput: document.getElementById('api-key'),
     btnAuth: document.getElementById('btn-auth'),
+    btnLogout: document.getElementById('btn-logout'),
     filterStatus: document.getElementById('filter-status'),
     btnRefresh: document.getElementById('btn-refresh'),
     btnExport: document.getElementById('btn-export'),
     claimsBody: document.getElementById('claims-body'),
+    emptyState: document.getElementById('empty-state'),
+    lastUpdated: document.getElementById('last-updated'),
     modal: document.getElementById('claim-modal'),
     btnUpdate: document.getElementById('btn-update')
 };
@@ -32,19 +35,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function setupEventListeners() {
     elements.btnAuth.addEventListener('click', authenticate);
+    elements.btnLogout.addEventListener('click', logout);
     elements.btnRefresh.addEventListener('click', loadClaims);
     elements.btnExport.addEventListener('click', exportCSV);
     elements.filterStatus.addEventListener('change', loadClaims);
     elements.btnUpdate.addEventListener('click', updateClaim);
     
     // Modal close
-    document.querySelector('.close').addEventListener('click', () => {
-        elements.modal.style.display = 'none';
-    });
+    document.querySelector('.close').addEventListener('click', closeModal);
     
-    window.addEventListener('click', (e) => {
+    elements.modal.addEventListener('click', (e) => {
         if (e.target === elements.modal) {
-            elements.modal.style.display = 'none';
+            closeModal();
         }
     });
     
@@ -52,6 +54,23 @@ function setupEventListeners() {
     elements.apiKeyInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') authenticate();
     });
+
+    // Escape key closes modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && elements.modal.classList.contains('flex')) {
+            closeModal();
+        }
+    });
+}
+
+function closeModal() {
+    elements.modal.classList.remove('flex');
+    elements.modal.classList.add('hidden');
+}
+
+function openModal() {
+    elements.modal.classList.remove('hidden');
+    elements.modal.classList.add('flex');
 }
 
 // Authenticate
@@ -59,7 +78,7 @@ async function authenticate() {
     apiKey = elements.apiKeyInput.value.trim();
     
     if (!apiKey) {
-        alert('Please enter an API key');
+        showNotification('Please enter an API key', 'error');
         return;
     }
     
@@ -72,16 +91,26 @@ async function authenticate() {
             localStorage.setItem('xki_admin_key', apiKey);
             showDashboard();
         } else {
-            alert('Invalid API key');
+            showNotification('Invalid API key', 'error');
         }
     } catch (e) {
-        alert('Error authenticating');
+        showNotification('Error authenticating', 'error');
     }
 }
 
+function logout() {
+    localStorage.removeItem('xki_admin_key');
+    apiKey = null;
+    elements.dashboard.classList.add('hidden');
+    elements.authSection.classList.remove('hidden');
+    elements.btnLogout.classList.add('hidden');
+    elements.apiKeyInput.value = '';
+}
+
 function showDashboard() {
-    elements.authSection.style.display = 'none';
-    elements.dashboard.style.display = 'block';
+    elements.authSection.classList.add('hidden');
+    elements.dashboard.classList.remove('hidden');
+    elements.btnLogout.classList.remove('hidden');
     loadStats();
     loadClaims();
 }
@@ -97,11 +126,19 @@ async function loadStats() {
         document.getElementById('stat-pending').textContent = data.pending || 0;
         document.getElementById('stat-completed').textContent = data.completed || 0;
         document.getElementById('stat-distributed').textContent = 
-            formatNumber(data.distributed || 0) + ' XKI';
+            formatNumber(data.distributed || 0);
         document.getElementById('stat-rate').textContent = 
             (data.rate || 0).toFixed(1) + '%';
+
+        updateTimestamp();
     } catch (e) {
         console.error('Error loading stats:', e);
+    }
+}
+
+function updateTimestamp() {
+    if (elements.lastUpdated) {
+        elements.lastUpdated.textContent = new Date().toLocaleTimeString();
     }
 }
 
@@ -120,27 +157,51 @@ async function loadClaims() {
         const claims = await res.json();
         
         renderClaims(claims);
+        updateTimestamp();
     } catch (e) {
         console.error('Error loading claims:', e);
     }
 }
 
 function renderClaims(claims) {
+    if (!claims || claims.length === 0) {
+        elements.claimsBody.innerHTML = '';
+        elements.emptyState.classList.remove('hidden');
+        return;
+    }
+
+    elements.emptyState.classList.add('hidden');
     elements.claimsBody.innerHTML = claims.map(claim => `
-        <tr>
-            <td>${claim.id}</td>
-            <td class="address" title="${claim.kiAddress}">${truncate(claim.kiAddress, 15)}</td>
-            <td class="address" title="${claim.ethAddress}">${truncate(claim.ethAddress, 15)}</td>
-            <td>${formatNumber(claim.amount)}</td>
-            <td class="status-${claim.status}">${claim.status.toUpperCase()}</td>
-            <td>${formatDate(claim.createdAt)}</td>
-            <td>
-                <button class="btn btn-secondary btn-action" onclick="viewClaim(${claim.id})">
+        <tr class="group">
+            <td class="py-4 px-6 text-sm text-gray-400">#${claim.id}</td>
+            <td class="py-4 px-6">
+                <span class="font-mono text-xs text-gray-300" title="${claim.kiAddress}">${truncate(claim.kiAddress, 18)}</span>
+            </td>
+            <td class="py-4 px-6">
+                <span class="font-mono text-xs text-gray-300" title="${claim.ethAddress}">${truncate(claim.ethAddress, 18)}</span>
+            </td>
+            <td class="py-4 px-6 text-sm text-white font-medium">${formatNumber(claim.amount)}</td>
+            <td class="py-4 px-6">
+                <span class="text-[10px] uppercase tracking-widest font-bold ${getStatusClass(claim.status)}">${claim.status}</span>
+            </td>
+            <td class="py-4 px-6 text-xs text-gray-500">${formatDate(claim.createdAt)}</td>
+            <td class="py-4 px-6">
+                <button onclick="viewClaim(${claim.id})" class="px-3 py-1 border border-white/10 text-[10px] uppercase tracking-widest text-gray-400 hover:bg-white hover:text-black transition-all">
                     View
                 </button>
             </td>
         </tr>
     `).join('');
+}
+
+function getStatusClass(status) {
+    const classes = {
+        pending: 'text-amber-400',
+        approved: 'text-blue-400',
+        completed: 'text-emerald-400',
+        rejected: 'text-red-400'
+    };
+    return classes[status] || 'text-gray-400';
 }
 
 // View Claim
@@ -157,17 +218,26 @@ async function viewClaim(id) {
         document.getElementById('detail-ki').textContent = claim.kiAddress;
         document.getElementById('detail-eth').textContent = claim.ethAddress;
         document.getElementById('detail-amount').textContent = formatNumber(claim.amount);
-        document.getElementById('detail-sig').textContent = truncate(claim.signature, 50);
-        document.getElementById('detail-status').textContent = claim.status.toUpperCase();
+        document.getElementById('detail-sig').textContent = claim.signature || 'N/A';
+        
+        const statusEl = document.getElementById('detail-status');
+        statusEl.textContent = claim.status.toUpperCase();
+        statusEl.className = `text-lg font-bold uppercase tracking-widest ${getStatusClass(claim.status)}`;
+        
         document.getElementById('detail-created').textContent = formatDate(claim.createdAt);
         
         document.getElementById('update-status').value = claim.status;
         document.getElementById('update-txhash').value = claim.txHash || '';
         document.getElementById('update-notes').value = claim.adminNotes || '';
         
-        elements.modal.style.display = 'block';
+        openModal();
+        
+        // Re-init lucide icons in modal
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
     } catch (e) {
-        alert('Error loading claim details');
+        showNotification('Error loading claim details', 'error');
     }
 }
 
@@ -180,7 +250,7 @@ async function updateClaim() {
     const adminNotes = document.getElementById('update-notes').value.trim();
     
     if (status === 'completed' && !txHash) {
-        alert('TX Hash is required for completed claims');
+        showNotification('TX Hash is required for completed claims', 'error');
         return;
     }
     
@@ -195,16 +265,16 @@ async function updateClaim() {
         });
         
         if (res.ok) {
-            alert('Claim updated successfully');
-            elements.modal.style.display = 'none';
+            showNotification('Claim updated successfully', 'success');
+            closeModal();
             loadClaims();
             loadStats();
         } else {
             const err = await res.json();
-            alert('Error: ' + (err.message || 'Unknown error'));
+            showNotification('Error: ' + (err.message || 'Unknown error'), 'error');
         }
     } catch (e) {
-        alert('Error updating claim');
+        showNotification('Error updating claim', 'error');
     }
 }
 
@@ -235,9 +305,17 @@ async function exportCSV() {
         a.href = url;
         a.download = `xki-claims-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
+        
+        showNotification('CSV exported successfully', 'success');
     } catch (e) {
-        alert('Error exporting CSV');
+        showNotification('Error exporting CSV', 'error');
     }
+}
+
+// Simple notification
+function showNotification(message, type = 'info') {
+    // For now, use alert. Could be replaced with a toast system.
+    alert(message);
 }
 
 // Helpers
@@ -252,7 +330,8 @@ function formatNumber(num) {
 }
 
 function formatDate(dateStr) {
-    return new Date(dateStr).toLocaleString();
+    const date = new Date(dateStr);
+    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // Make viewClaim globally accessible
