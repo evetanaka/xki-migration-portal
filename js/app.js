@@ -405,3 +405,4 @@ function truncateAddress(addr) {
     if (!addr) return '';
     return addr.slice(0, 8) + '...' + addr.slice(-4);
 }
+/* Build 1769774174 */
