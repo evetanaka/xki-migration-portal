@@ -1,16 +1,22 @@
-// XKI Migration Admin Dashboard
+// XKI Migration Admin Dashboard - Keplr Auth
 
 const API_BASE = '/api';
-let apiKey = null;
+
+// Admin whitelist - only this wallet can access
+const ADMIN_WALLET = 'ki1ypnke0r4uk6u82w4gh73kc5tz0qsn0ahek0653';
+
+// State
+let authToken = null;
+let adminAddress = null;
 let currentClaim = null;
 
 // DOM Elements
 const elements = {
     authSection: document.getElementById('auth-section'),
     dashboard: document.getElementById('dashboard'),
-    apiKeyInput: document.getElementById('api-key'),
     btnAuth: document.getElementById('btn-auth'),
-    btnLogout: document.getElementById('btn-logout'),
+    authError: document.getElementById('auth-error'),
+    walletStatus: document.getElementById('wallet-status'),
     filterStatus: document.getElementById('filter-status'),
     btnRefresh: document.getElementById('btn-refresh'),
     btnExport: document.getElementById('btn-export'),
@@ -23,19 +29,26 @@ const elements = {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Check for stored API key
-    const storedKey = localStorage.getItem('xki_admin_key');
-    if (storedKey) {
-        apiKey = storedKey;
-        showDashboard();
+    // Check for stored auth
+    const stored = sessionStorage.getItem('xki_admin_auth');
+    if (stored) {
+        try {
+            const data = JSON.parse(stored);
+            if (data.address === ADMIN_WALLET && data.token) {
+                authToken = data.token;
+                adminAddress = data.address;
+                showDashboard();
+            }
+        } catch (e) {
+            sessionStorage.removeItem('xki_admin_auth');
+        }
     }
     
     setupEventListeners();
 });
 
 function setupEventListeners() {
-    elements.btnAuth.addEventListener('click', authenticate);
-    elements.btnLogout.addEventListener('click', logout);
+    elements.btnAuth.addEventListener('click', authenticateWithKeplr);
     elements.btnRefresh.addEventListener('click', loadClaims);
     elements.btnExport.addEventListener('click', exportCSV);
     elements.filterStatus.addEventListener('change', loadClaims);
@@ -48,11 +61,6 @@ function setupEventListeners() {
         if (e.target === elements.modal) {
             closeModal();
         }
-    });
-    
-    // Enter key on API key input
-    elements.apiKeyInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') authenticate();
     });
 
     // Escape key closes modal
@@ -73,54 +81,162 @@ function openModal() {
     elements.modal.classList.add('flex');
 }
 
-// Authenticate
-async function authenticate() {
-    apiKey = elements.apiKeyInput.value.trim();
+function showError(message) {
+    elements.authError.textContent = message;
+    elements.authError.classList.remove('hidden');
+}
+
+function hideError() {
+    elements.authError.classList.add('hidden');
+}
+
+// Authenticate with Keplr
+async function authenticateWithKeplr() {
+    hideError();
     
-    if (!apiKey) {
-        showNotification('Please enter an API key', 'error');
+    const btn = elements.btnAuth;
+    btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Connecting...';
+    btn.disabled = true;
+    
+    if (!window.keplr) {
+        const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
+        if (confirmInstall) {
+            window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
+        }
+        resetAuthButton();
         return;
     }
     
     try {
-        const res = await fetch(`${API_BASE}/admin/claims?status=pending`, {
-            headers: { 'X-API-Key': apiKey }
+        const chainId = 'kichain-2';
+        
+        // Enable Ki Chain in Keplr
+        try {
+            await window.keplr.enable(chainId);
+        } catch (enableErr) {
+            // Ki Chain might need to be added
+            await window.keplr.experimentalSuggestChain({
+                chainId: "kichain-2",
+                chainName: "Ki Chain",
+                rpc: "https://rpc-mainnet.blockchain.ki",
+                rest: "https://api-mainnet.blockchain.ki",
+                bip44: { coinType: 118 },
+                bech32Config: {
+                    bech32PrefixAccAddr: "ki",
+                    bech32PrefixAccPub: "kipub",
+                    bech32PrefixValAddr: "kivaloper",
+                    bech32PrefixValPub: "kivaloperpub",
+                    bech32PrefixConsAddr: "kivalcons",
+                    bech32PrefixConsPub: "kivalconspub"
+                },
+                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
+            });
+            await window.keplr.enable(chainId);
+        }
+        
+        // Get the key/address
+        const key = await window.keplr.getKey(chainId);
+        const address = key.bech32Address;
+        
+        // Check if authorized
+        if (address !== ADMIN_WALLET) {
+            showError(`Access denied. This wallet is not authorized.`);
+            resetAuthButton();
+            return;
+        }
+        
+        // Request signature for authentication
+        btn.innerHTML = '<i data-lucide="pen-tool" class="w-4 h-4"></i> Sign to authenticate...';
+        
+        const timestamp = Date.now();
+        const message = `XKI Migration Admin Auth\nTimestamp: ${timestamp}`;
+        
+        const signature = await window.keplr.signArbitrary(chainId, address, message);
+        
+        // Verify with backend and get auth token
+        const res = await fetch(`${API_BASE}/admin/auth`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                address: address,
+                message: message,
+                signature: signature.signature,
+                pubKey: signature.pub_key.value,
+                timestamp: timestamp
+            })
         });
         
-        if (res.ok) {
-            localStorage.setItem('xki_admin_key', apiKey);
-            showDashboard();
-        } else {
-            showNotification('Invalid API key', 'error');
+        if (!res.ok) {
+            const err = await res.json();
+            throw new Error(err.error || 'Authentication failed');
         }
+        
+        const data = await res.json();
+        authToken = data.token;
+        adminAddress = address;
+        
+        // Store in session
+        sessionStorage.setItem('xki_admin_auth', JSON.stringify({
+            address: address,
+            token: authToken
+        }));
+        
+        showDashboard();
+        
     } catch (e) {
-        showNotification('Error authenticating', 'error');
+        console.error('Auth error:', e);
+        showError(e.message || 'Authentication failed');
+        resetAuthButton();
     }
 }
 
-function logout() {
-    localStorage.removeItem('xki_admin_key');
-    apiKey = null;
-    elements.dashboard.classList.add('hidden');
-    elements.authSection.classList.remove('hidden');
-    elements.btnLogout.classList.add('hidden');
-    elements.apiKeyInput.value = '';
+function resetAuthButton() {
+    elements.btnAuth.innerHTML = '<i data-lucide="wallet" class="w-4 h-4"></i> Connect Keplr';
+    elements.btnAuth.disabled = false;
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 function showDashboard() {
     elements.authSection.classList.add('hidden');
     elements.dashboard.classList.remove('hidden');
-    elements.btnLogout.classList.remove('hidden');
+    
+    // Update wallet status
+    elements.walletStatus.textContent = truncate(adminAddress, 16);
+    elements.walletStatus.classList.remove('text-gray-400', 'border-white/20');
+    elements.walletStatus.classList.add('text-emerald-400', 'border-emerald-900', 'bg-emerald-900/10');
+    
     loadStats();
     loadClaims();
+}
+
+// API calls with auth token
+async function apiCall(endpoint, options = {}) {
+    const headers = {
+        'Authorization': `Bearer ${authToken}`,
+        ...options.headers
+    };
+    
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+        ...options,
+        headers
+    });
+    
+    if (res.status === 401) {
+        // Token expired, clear and reload
+        sessionStorage.removeItem('xki_admin_auth');
+        location.reload();
+        return;
+    }
+    
+    return res;
 }
 
 // Load Stats
 async function loadStats() {
     try {
-        const res = await fetch(`${API_BASE}/admin/stats`, {
-            headers: { 'X-API-Key': apiKey }
-        });
+        const res = await apiCall('/admin/stats');
         const data = await res.json();
         
         document.getElementById('stat-pending').textContent = data.pending || 0;
@@ -148,12 +264,10 @@ async function loadClaims() {
     
     try {
         const url = status === 'all' 
-            ? `${API_BASE}/admin/claims`
-            : `${API_BASE}/admin/claims?status=${status}`;
+            ? '/admin/claims'
+            : `/admin/claims?status=${status}`;
             
-        const res = await fetch(url, {
-            headers: { 'X-API-Key': apiKey }
-        });
+        const res = await apiCall(url);
         const claims = await res.json();
         
         renderClaims(claims);
@@ -207,9 +321,7 @@ function getStatusClass(status) {
 // View Claim
 async function viewClaim(id) {
     try {
-        const res = await fetch(`${API_BASE}/admin/claims/${id}`, {
-            headers: { 'X-API-Key': apiKey }
-        });
+        const res = await apiCall(`/admin/claims/${id}`);
         const claim = await res.json();
         
         currentClaim = claim;
@@ -237,7 +349,7 @@ async function viewClaim(id) {
             lucide.createIcons();
         }
     } catch (e) {
-        showNotification('Error loading claim details', 'error');
+        alert('Error loading claim details');
     }
 }
 
@@ -250,40 +362,35 @@ async function updateClaim() {
     const adminNotes = document.getElementById('update-notes').value.trim();
     
     if (status === 'completed' && !txHash) {
-        showNotification('TX Hash is required for completed claims', 'error');
+        alert('TX Hash is required for completed claims');
         return;
     }
     
     try {
-        const res = await fetch(`${API_BASE}/admin/claims/${currentClaim.id}`, {
+        const res = await apiCall(`/admin/claims/${currentClaim.id}`, {
             method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': apiKey
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status, txHash, adminNotes })
         });
         
         if (res.ok) {
-            showNotification('Claim updated successfully', 'success');
+            alert('Claim updated successfully');
             closeModal();
             loadClaims();
             loadStats();
         } else {
             const err = await res.json();
-            showNotification('Error: ' + (err.message || 'Unknown error'), 'error');
+            alert('Error: ' + (err.error || 'Unknown error'));
         }
     } catch (e) {
-        showNotification('Error updating claim', 'error');
+        alert('Error updating claim');
     }
 }
 
 // Export CSV
 async function exportCSV() {
     try {
-        const res = await fetch(`${API_BASE}/admin/claims`, {
-            headers: { 'X-API-Key': apiKey }
-        });
+        const res = await apiCall('/admin/claims');
         const claims = await res.json();
         
         const csv = [
@@ -305,17 +412,9 @@ async function exportCSV() {
         a.href = url;
         a.download = `xki-claims-${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
-        
-        showNotification('CSV exported successfully', 'success');
     } catch (e) {
-        showNotification('Error exporting CSV', 'error');
+        alert('Error exporting CSV');
     }
-}
-
-// Simple notification
-function showNotification(message, type = 'info') {
-    // For now, use alert. Could be replaced with a toast system.
-    alert(message);
 }
 
 // Helpers
