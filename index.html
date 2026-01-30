@@ -4,85 +4,238 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XKI Migration Portal</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Manrope:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Custom Fonts Configuration */
+        .font-serif { font-family: 'Cinzel', serif; }
+        .font-sans { font-family: 'Manrope', sans-serif; }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.8s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-out { animation: fadeOut 0.5s ease-out forwards; }
+        @keyframes fadeOut {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(-10px); }
+        }
+
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Input Autofill fix for dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #0a0a0a inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Utility for hiding scrollbar if needed */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
 </head>
-<body>
-    <header>
-        <div class="container">
-            <h1>XKI Migration Portal</h1>
-            <p>Migrate your Ki Chain tokens to Ethereum</p>
+<body class="bg-[#050505] text-[#E0E0E0] font-sans antialiased selection:bg-white selection:text-black flex flex-col min-h-screen overflow-x-hidden relative">
+
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-20" style="background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 100px 100px;"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-10 w-full px-8 py-6 flex justify-between items-center border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
+            <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400">Foundation</span>
         </div>
-    </header>
-
-    <main class="container">
-        <section class="stats-section">
-            <div class="stat-card">
-                <h3>Total Eligible</h3>
-                <p id="stat-eligible">—</p>
+        <div class="flex items-center gap-6">
+            <span class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500">Migration Protocol v2.0</span>
+            <div id="wallet-status" class="px-3 py-1 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500">
+                Disconnected
             </div>
-            <div class="stat-card">
-                <h3>Total Claimed</h3>
-                <p id="stat-claimed">—</p>
-            </div>
-            <div class="stat-card">
-                <h3>Time Remaining</h3>
-                <p id="stat-countdown">—</p>
-            </div>
-        </section>
+        </div>
+    </nav>
 
-        <section class="claim-section">
-            <h2>Claim Your Tokens</h2>
+    <!-- Main Content -->
+    <main class="flex-grow flex flex-col justify-center items-center relative z-10 px-4 py-12">
+        <!-- Header -->
+        <header class="text-center mb-16 fade-in">
+            <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif text-white mb-4 tracking-wide">
+                Legacy Transition
+            </h1>
+            <p class="text-[10px] md:text-xs uppercase tracking-[0.4em] text-gray-500 font-light">
+                Secure your assets • Ki Chain to Ethereum
+            </p>
+        </header>
 
-            <div id="step-1" class="step active">
-                <h3>Step 1 — Connect Keplr Wallet</h3>
-                <p>Connect your Keplr wallet to verify your Ki Chain holdings.</p>
-                <button id="btn-connect-keplr" class="btn btn-primary">Connect Keplr</button>
-                <div id="ki-address" class="address" style="display: none;"></div>
-            </div>
-
-            <div id="step-2" class="step">
-                <h3>Step 2 — Check Eligibility</h3>
-                <p>Your balance: <strong id="eligible-balance">—</strong> XKI</p>
-                <p id="eligibility-status"></p>
+        <!-- Monolith Card -->
+        <div class="w-full max-w-lg glass-panel relative shadow-2xl transition-all duration-500 fade-in flex flex-col">
+            <!-- Progress Bar -->
+            <div class="absolute top-0 left-0 w-full h-[2px] bg-white/5">
+                <div id="progress-bar" class="h-full bg-white transition-all duration-1000 ease-in-out" style="width: 20%"></div>
             </div>
 
-            <div id="step-3" class="step">
-                <h3>Step 3 — Enter Ethereum Address</h3>
-                <p>Enter the Ethereum address where you want to receive your tokens.</p>
-                <input type="text" id="eth-address" placeholder="0x...">
-                <button id="btn-prepare" class="btn btn-secondary">Prepare Claim</button>
-            </div>
+            <div class="p-8 md:p-12 min-h-[450px] flex flex-col">
+                <!-- Dynamic Header of the Card -->
+                <div class="mb-8">
+                    <div class="flex justify-between items-end mb-2">
+                        <span id="step-indicator" class="text-[10px] uppercase tracking-widest text-gray-500">Step 01 / 04</span>
+                        <span id="loading-indicator" class="text-[10px] uppercase tracking-widest text-white animate-pulse hidden">Processing...</span>
+                    </div>
+                    <h2 id="step-title" class="text-2xl font-serif text-white">Authentication</h2>
+                </div>
 
-            <div id="step-4" class="step">
-                <h3>Step 4 — Sign with Keplr</h3>
-                <p>Sign the message to prove ownership of your Ki Chain wallet.</p>
-                <button id="btn-sign" class="btn btn-primary">Sign Message</button>
+                <!-- Dynamic Content Area -->
+                <div id="step-content" class="flex-grow flex flex-col justify-center transition-opacity duration-500">
+                    <!-- Content injected by JS -->
+                </div>
             </div>
-
-            <div id="step-5" class="step">
-                <h3>Claim Submitted</h3>
-                <p>Your claim has been submitted and is pending review.</p>
-                <p>Claim ID: <strong id="claim-id">—</strong></p>
-                <p>Tokens will be sent to:</p>
-                <div id="confirmed-eth" class="address">—</div>
-            </div>
-        </section>
-
-        <section class="status-section">
-            <h2>Check Claim Status</h2>
-            <input type="text" id="check-address" placeholder="Enter ki1... address">
-            <button id="btn-check-status" class="btn btn-secondary">Check Status</button>
-            <div id="status-result"></div>
-        </section>
+        </div>
     </main>
 
-    <footer>
-        <p>&copy; 2026 Ki Chain Foundation</p>
+    <!-- Footer Stats -->
+    <footer class="relative z-10 w-full border-t border-white/10 bg-[#080808]">
+        <div class="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-white/10 max-w-6xl mx-auto">
+            <!-- Stat 1 -->
+            <div class="py-8 md:py-10 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors cursor-default">
+                <div class="mb-3 text-gray-600 group-hover:text-white transition-colors">
+                    <i data-lucide="layers" class="w-4 h-4"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2">Total Eligible</span>
+                <span id="stat-eligible" class="text-2xl font-serif text-white">—</span>
+            </div>
+            <!-- Stat 2 -->
+            <div class="py-8 md:py-10 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors cursor-default">
+                <div class="mb-3 text-gray-600 group-hover:text-white transition-colors">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2">Total Claimed</span>
+                <span id="stat-claimed" class="text-2xl font-serif text-white">—</span>
+            </div>
+            <!-- Stat 3 -->
+            <div class="py-8 md:py-10 flex flex-col items-center justify-center group hover:bg-white/5 transition-colors cursor-default">
+                <div class="mb-3 text-gray-600 group-hover:text-white transition-colors">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                </div>
+                <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500 mb-2">Time Remaining</span>
+                <span id="stat-countdown" class="text-2xl font-serif text-white">—</span>
+            </div>
+        </div>
+        <div class="py-6 text-center border-t border-white/5">
+            <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2026 Ki Chain Foundation — Architecture of Value</p>
+        </div>
     </footer>
 
+    <!-- Templates for Steps (Hidden) -->
+    <template id="template-step-1">
+        <div class="space-y-6 fade-in">
+            <p class="text-sm text-gray-400 font-light leading-relaxed">
+                Please connect your Keplr wallet to verify your Ki Chain holdings and initiate the migration sequence.
+            </p>
+            <button onclick="handleConnect()" class="group w-full py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center justify-center gap-3">
+                Connect Keplr
+                <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
+            </button>
+        </div>
+    </template>
+
+    <template id="template-step-2">
+        <div class="space-y-8 fade-in">
+            <div class="flex flex-col gap-1 border-l-2 border-white/20 pl-6 py-2">
+                <span class="text-[10px] uppercase tracking-widest text-gray-500">Verified Balance</span>
+                <span id="balance-display" class="text-4xl font-serif text-white">— <span class="text-lg text-gray-600">XKI</span></span>
+            </div>
+            <div class="bg-white/5 p-4 border border-white/10">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="check" class="w-5 h-5 text-green-500 mt-0.5"></i>
+                    <div class="space-y-1">
+                        <p class="text-xs text-white uppercase tracking-wider">Eligible for Migration</p>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Your wallet snapshot confirms ownership. Proceed to define the destination.</p>
+                    </div>
+                </div>
+            </div>
+            <button onclick="goToStep(3)" class="group w-full py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all flex items-center justify-center gap-3">
+                Continue
+                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </template>
+
+    <template id="template-step-3">
+        <form onsubmit="handleAddressSubmit(event)" class="space-y-8 fade-in">
+            <div class="space-y-4">
+                <label class="text-[10px] uppercase tracking-widest text-gray-400 block">
+                    Recipient Ethereum Address
+                </label>
+                <input type="text" id="eth-input" oninput="checkInput(this)" placeholder="0x..."
+                    class="w-full bg-transparent border-b border-gray-700 py-3 text-xl font-mono text-white placeholder-gray-800 focus:outline-none focus:border-white transition-colors rounded-none" />
+                <p class="text-[10px] text-gray-500 flex items-center gap-2">
+                    <i data-lucide="shield-check" class="w-3 h-3"></i>
+                    Ensure this is a non-custodial wallet (Metamask, Ledger).
+                </p>
+            </div>
+            <button id="btn-review" type="submit" disabled
+                class="w-full py-4 text-xs font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 bg-gray-900 text-gray-600 cursor-not-allowed border border-gray-800">
+                Review Claim
+            </button>
+        </form>
+    </template>
+
+    <template id="template-step-4">
+        <div class="space-y-6 fade-in">
+            <div class="space-y-4 border-b border-white/10 pb-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500 uppercase tracking-widest">Amount</span>
+                    <span id="amount-display" class="text-sm text-white font-mono">— XKI</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-xs text-gray-500 uppercase tracking-widest">Destination</span>
+                    <span id="display-address" class="text-sm text-white font-mono truncate max-w-[150px]">0x...</span>
+                </div>
+            </div>
+            <p class="text-[11px] text-gray-500 text-center leading-relaxed">
+                By signing, you cryptographically prove ownership of the Ki Chain wallet. This does not incur gas fees.
+            </p>
+            <button onclick="handleSign()" class="w-full py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors relative overflow-hidden">
+                Sign Message
+            </button>
+        </div>
+    </template>
+
+    <template id="template-step-5">
+        <div class="text-center space-y-6 fade-in">
+            <div class="w-16 h-16 border border-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="check" class="w-6 h-6 text-white"></i>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-widest text-gray-500 mb-2">Claim ID</p>
+                <p id="claim-id-display" class="text-lg font-mono text-white">—</p>
+            </div>
+            <div class="bg-green-900/10 border border-green-900/30 p-4">
+                <p class="text-xs text-green-400">Your claim is now pending distribution.</p>
+            </div>
+            <button onclick="location.reload()" class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors border-b border-transparent hover:border-white pb-1">
+                Start New Claim
+            </button>
+        </div>
+    </template>
+
+    <!-- Logic -->
     <script src="js/app.js"></script>
 </body>
 </html>

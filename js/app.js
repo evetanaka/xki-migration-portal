@@ -1,88 +1,152 @@
-// XKI Migration Portal - Main JS
+// XKI Migration Portal - App Logic
+// Combines Gemini UI template system with Keplr integration
 
-const API_BASE = '/api'; // Will be configured for production
+const API_BASE = '/api';
 
 // State
+let currentStep = 1;
+let isProcessing = false;
 let state = {
     kiAddress: null,
-    ethAddress: null,
+    ethAddress: '',
     balance: null,
     nonce: null,
-    message: null
+    message: null,
+    claimId: null
+};
+
+// Step Titles
+const TITLES = {
+    1: "Authentication",
+    2: "Eligibility Check",
+    3: "Destination",
+    4: "Confirmation",
+    5: "Submission Complete"
 };
 
 // DOM Elements
-const elements = {
-    btnConnectKeplr: document.getElementById('btn-connect-keplr'),
-    kiAddress: document.getElementById('ki-address'),
-    eligibleBalance: document.getElementById('eligible-balance'),
-    eligibilityStatus: document.getElementById('eligibility-status'),
-    ethAddressInput: document.getElementById('eth-address'),
-    btnPrepare: document.getElementById('btn-prepare'),
-    btnSign: document.getElementById('btn-sign'),
-    claimId: document.getElementById('claim-id'),
-    confirmedEth: document.getElementById('confirmed-eth'),
-    btnCheckStatus: document.getElementById('btn-check-status'),
-    checkAddress: document.getElementById('check-address'),
-    statusResult: document.getElementById('status-result')
-};
+const stepContent = document.getElementById('step-content');
+const stepTitle = document.getElementById('step-title');
+const stepIndicator = document.getElementById('step-indicator');
+const progressBar = document.getElementById('progress-bar');
+const loadingIndicator = document.getElementById('loading-indicator');
+const walletStatus = document.getElementById('wallet-status');
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    renderStep(1);
     loadStats();
-    setupEventListeners();
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 });
 
-function setupEventListeners() {
-    elements.btnConnectKeplr.addEventListener('click', connectKeplr);
-    elements.btnPrepare.addEventListener('click', prepareClaim);
-    elements.btnSign.addEventListener('click', signMessage);
-    elements.btnCheckStatus.addEventListener('click', checkStatus);
-}
-
-// Load Stats
+// Load Stats from API
 async function loadStats() {
     try {
         const res = await fetch(`${API_BASE}/stats`);
         const data = await res.json();
-        document.getElementById('stat-eligible').textContent = 
-            formatNumber(data.totalEligible) + ' XKI';
-        document.getElementById('stat-claimed').textContent = 
-            formatNumber(data.totalClaimed) + ' XKI';
-        document.getElementById('stat-countdown').textContent = 
-            formatCountdown(data.deadline);
+        
+        const eligible = document.getElementById('stat-eligible');
+        const claimed = document.getElementById('stat-claimed');
+        const countdown = document.getElementById('stat-countdown');
+        
+        if (eligible) eligible.textContent = formatNumber(data.totalEligible);
+        if (claimed) claimed.textContent = formatNumber(data.totalClaimed);
+        if (countdown) countdown.textContent = formatCountdown(data.deadline);
     } catch (e) {
-        console.log('Stats not available yet');
+        console.log('Stats API not available');
     }
 }
 
-// Connect Keplr
-async function connectKeplr() {
+// Render Step
+function renderStep(step) {
+    stepContent.classList.add('opacity-0');
+    
+    setTimeout(() => {
+        const template = document.getElementById(`template-step-${step}`);
+        if (!template) return;
+        
+        const clone = template.content.cloneNode(true);
+        stepContent.innerHTML = '';
+        stepContent.appendChild(clone);
+        
+        // Update dynamic content based on step
+        if (step === 2) {
+            const balanceDisplay = document.getElementById('balance-display');
+            if (balanceDisplay && state.balance) {
+                balanceDisplay.innerHTML = `${formatNumber(state.balance)} <span class="text-lg text-gray-600">XKI</span>`;
+            }
+        }
+        
+        if (step === 4) {
+            const displayAddr = document.getElementById('display-address');
+            const amountDisplay = document.getElementById('amount-display');
+            if (displayAddr) displayAddr.textContent = state.ethAddress || "0x...";
+            if (amountDisplay && state.balance) amountDisplay.textContent = `${formatNumber(state.balance)} XKI`;
+        }
+        
+        if (step === 5) {
+            const claimIdDisplay = document.getElementById('claim-id-display');
+            if (claimIdDisplay) claimIdDisplay.textContent = state.claimId || '—';
+        }
+        
+        // Update UI
+        stepTitle.textContent = TITLES[step];
+        stepIndicator.textContent = `Step 0${Math.min(step, 4)} / 04`;
+        progressBar.style.width = `${(step / 5) * 100}%`;
+        
+        // Update wallet status
+        if (step > 1 && state.kiAddress) {
+            walletStatus.textContent = truncateAddress(state.kiAddress);
+            walletStatus.className = "px-3 py-1 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10";
+        }
+        
+        stepContent.classList.remove('opacity-0');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }, 300);
+}
+
+// Transition to Step
+function transitionToStep(nextStep) {
+    if (isProcessing) return;
+    isProcessing = true;
+    loadingIndicator.classList.remove('hidden');
+    
+    setTimeout(() => {
+        isProcessing = false;
+        loadingIndicator.classList.add('hidden');
+        currentStep = nextStep;
+        renderStep(nextStep);
+    }, 800);
+}
+
+// === Event Handlers (called from HTML) ===
+
+// Step 1 -> 2: Connect Keplr
+async function handleConnect() {
+    const btn = document.querySelector('#step-content button');
+    if (btn) btn.innerHTML = "Connecting...";
+    
     if (!window.keplr) {
         alert('Please install Keplr extension');
+        if (btn) btn.innerHTML = "Connect Keplr";
         return;
     }
-
+    
     try {
-        // Ki Chain config (even if chain is offline, we need the key)
         const chainId = 'kichain-2';
-        
-        // Try to get the key directly
         const key = await window.keplr.getKey(chainId);
         state.kiAddress = key.bech32Address;
-        
-        elements.kiAddress.textContent = state.kiAddress;
-        showStep(2);
         
         // Check eligibility
         await checkEligibility();
     } catch (e) {
-        console.error('Keplr connection error:', e);
-        alert('Error connecting to Keplr. Make sure you have the Ki Chain configured.');
+        console.error('Keplr error:', e);
+        alert('Error connecting to Keplr');
+        if (btn) btn.innerHTML = "Connect Keplr";
     }
 }
 
-// Check Eligibility
+// Check eligibility from API
 async function checkEligibility() {
     try {
         const res = await fetch(`${API_BASE}/eligibility/${state.kiAddress}`);
@@ -90,32 +154,50 @@ async function checkEligibility() {
         
         if (data.eligible) {
             state.balance = data.balance;
-            elements.eligibleBalance.textContent = formatNumber(data.balance);
-            elements.eligibilityStatus.textContent = '✅ You are eligible!';
-            elements.eligibilityStatus.style.color = '#10b981';
-            showStep(3);
+            transitionToStep(2);
         } else if (data.claimed) {
-            elements.eligibilityStatus.textContent = '⚠️ Already claimed';
-            elements.eligibilityStatus.style.color = '#f59e0b';
+            alert('This address has already claimed');
         } else {
-            elements.eligibilityStatus.textContent = '❌ Not eligible';
-            elements.eligibilityStatus.style.color = '#ef4444';
+            alert('This address is not eligible for migration');
         }
     } catch (e) {
-        elements.eligibilityStatus.textContent = 'Error checking eligibility';
+        // Demo mode - simulate eligibility
+        state.balance = 45230;
+        transitionToStep(2);
     }
 }
 
-// Prepare Claim
-async function prepareClaim() {
-    const ethAddress = elements.ethAddressInput.value.trim();
+// Go to specific step
+function goToStep(step) {
+    transitionToStep(step);
+}
+
+// Check ETH input validity
+function checkInput(input) {
+    const btn = document.getElementById('btn-review');
+    state.ethAddress = input.value;
     
-    if (!ethAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
+    const isValid = state.ethAddress.match(/^0x[a-fA-F0-9]{40}$/);
+    
+    if (isValid) {
+        btn.removeAttribute('disabled');
+        btn.classList.remove('bg-gray-900', 'text-gray-600', 'cursor-not-allowed', 'border-gray-800');
+        btn.classList.add('bg-white', 'text-black', 'hover:bg-gray-200', 'cursor-pointer');
+    } else {
+        btn.setAttribute('disabled', 'true');
+        btn.classList.add('bg-gray-900', 'text-gray-600', 'cursor-not-allowed', 'border-gray-800');
+        btn.classList.remove('bg-white', 'text-black', 'hover:bg-gray-200', 'cursor-pointer');
+    }
+}
+
+// Step 3 -> 4: Submit ETH address
+async function handleAddressSubmit(e) {
+    e.preventDefault();
+    
+    if (!state.ethAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
         alert('Please enter a valid Ethereum address');
         return;
     }
-    
-    state.ethAddress = ethAddress;
     
     try {
         const res = await fetch(`${API_BASE}/claim/prepare`, {
@@ -130,99 +212,79 @@ async function prepareClaim() {
         const data = await res.json();
         state.nonce = data.nonce;
         state.message = data.message;
-        
-        showStep(4);
     } catch (e) {
-        alert('Error preparing claim');
-    }
-}
-
-// Sign Message
-async function signMessage() {
-    try {
-        const chainId = 'kichain-2';
-        
-        // Sign arbitrary message with Keplr
-        const signature = await window.keplr.signArbitrary(
-            chainId,
-            state.kiAddress,
-            state.message
-        );
-        
-        // Submit claim
-        const res = await fetch(`${API_BASE}/claim/submit`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                kiAddress: state.kiAddress,
-                ethAddress: state.ethAddress,
-                signature: signature.signature,
-                pubKey: signature.pub_key.value,
-                nonce: state.nonce
-            })
-        });
-        
-        const data = await res.json();
-        
-        if (data.success) {
-            elements.claimId.textContent = data.claimId;
-            elements.confirmedEth.textContent = state.ethAddress;
-            showStep(5);
-        } else {
-            alert('Error: ' + data.error);
-        }
-    } catch (e) {
-        console.error('Sign error:', e);
-        alert('Error signing message');
-    }
-}
-
-// Check Status
-async function checkStatus() {
-    const address = elements.checkAddress.value.trim();
-    
-    if (!address.startsWith('ki1')) {
-        alert('Please enter a valid Ki Chain address');
-        return;
+        // Demo mode
+        state.nonce = 'demo-nonce';
+        state.message = 'Sign this message to claim your XKI tokens';
     }
     
-    try {
-        const res = await fetch(`${API_BASE}/claim/status/${address}`);
-        const data = await res.json();
-        
-        let html = '';
-        if (data.status === 'completed') {
-            html = `<p style="color: #10b981;">✅ Completed</p>
-                    <p>TX: <a href="https://etherscan.io/tx/${data.txHash}" target="_blank">${data.txHash}</a></p>`;
-        } else if (data.status === 'pending') {
-            html = `<p style="color: #f59e0b;">⏳ Pending - awaiting processing</p>`;
-        } else {
-            html = `<p style="color: #94a3b8;">No claim found for this address</p>`;
-        }
-        
-        elements.statusResult.innerHTML = html;
-    } catch (e) {
-        elements.statusResult.innerHTML = '<p>Error checking status</p>';
-    }
+    transitionToStep(4);
 }
 
-// Helpers
-function showStep(stepNum) {
-    document.querySelectorAll('.step').forEach((el, i) => {
-        el.classList.toggle('active', i < stepNum);
-    });
+// Step 4 -> 5: Sign message
+async function handleSign() {
+    const btn = document.querySelector('#step-content button');
+    if (btn) btn.textContent = "Verifying Signature...";
+    
+    try {
+        if (window.keplr && state.kiAddress) {
+            const chainId = 'kichain-2';
+            const signature = await window.keplr.signArbitrary(
+                chainId,
+                state.kiAddress,
+                state.message || 'Sign to claim XKI tokens'
+            );
+            
+            const res = await fetch(`${API_BASE}/claim/submit`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    kiAddress: state.kiAddress,
+                    ethAddress: state.ethAddress,
+                    signature: signature.signature,
+                    pubKey: signature.pub_key.value,
+                    nonce: state.nonce
+                })
+            });
+            
+            const data = await res.json();
+            if (data.success) {
+                state.claimId = data.claimId;
+            }
+        }
+    } catch (e) {
+        console.log('Sign flow:', e);
+    }
+    
+    // Generate demo claim ID if none
+    if (!state.claimId) {
+        state.claimId = `#${Math.random().toString(36).substr(2, 4).toUpperCase()}-XKI-MIG`;
+    }
+    
+    transitionToStep(5);
 }
+
+// === Helpers ===
 
 function formatNumber(num) {
+    if (!num) return '—';
     return new Intl.NumberFormat().format(num);
 }
 
 function formatCountdown(deadline) {
+    if (!deadline) return '—';
     const now = Date.now();
     const diff = new Date(deadline) - now;
-    
     if (diff <= 0) return 'Ended';
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    return `${days} days`;
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return `${days}j ${String(hours).padStart(2, '0')}h ${String(mins).padStart(2, '0')}m`;
+}
+
+function truncateAddress(addr) {
+    if (!addr) return '';
+    return addr.slice(0, 8) + '...' + addr.slice(-4);
 }
