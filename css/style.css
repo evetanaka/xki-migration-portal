@@ -1,546 +1,322 @@
-/* ============================================
-   XKI Migration Portal - Minimal Design
-   Inspired by Linear, Vercel, Stripe, Raycast
-   ============================================ */
+/* ================================================
+   XKI Migration Portal - Style GMSTN.VC
+   Élégant • Premium • Luxe
+   ================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@400;500&display=swap');
 
 :root {
-    /* Colors */
-    --color-bg: #09090b;
-    --color-bg-elevated: #0f0f12;
-    --color-border: rgba(255, 255, 255, 0.05);
-    --color-border-hover: rgba(255, 255, 255, 0.1);
-    
-    /* Text */
-    --color-text-primary: #fafafa;
-    --color-text-secondary: #a1a1aa;
-    --color-text-muted: #71717a;
-    
-    /* Accent - Soft violet */
-    --color-accent: #a78bfa;
-    --color-accent-hover: #c4b5fd;
-    --color-accent-bg: rgba(167, 139, 250, 0.1);
-    
-    /* Status */
-    --color-success: #22c55e;
-    --color-success-bg: rgba(34, 197, 94, 0.1);
-    
-    /* Spacing */
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --spacing-2xl: 48px;
-    --spacing-3xl: 64px;
-    
-    /* Radius */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 16px;
-    
-    /* Transitions */
-    --transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  /* Palette inspirée gmstn.vc */
+  --bg-primary: #0a0a0a;
+  --bg-card: #111111;
+  --bg-elevated: #1a1a1a;
+  
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.5);
+  
+  --accent: #d4af37;  /* Or subtil */
+  --accent-hover: #e4c04a;
+  
+  --border: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  
+  /* Fonts */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
 }
 
-/* ============================================
-   Reset & Base
-   ============================================ */
-
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
-    font-size: 16px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  scroll-behavior: smooth;
 }
 
 body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--color-bg);
-    color: var(--color-text-primary);
-    line-height: 1.6;
-    min-height: 100vh;
+  font-family: var(--font-body);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
 }
 
-/* ============================================
+/* ================================================
    Container
-   ============================================ */
-
+   ================================================ */
 .container {
-    max-width: 640px;
-    margin: 0 auto;
-    padding: var(--spacing-3xl) var(--spacing-lg);
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 0 24px;
 }
 
-@media (max-width: 640px) {
-    .container {
-        padding: var(--spacing-xl) var(--spacing-md);
-    }
+/* ================================================
+   Typography
+   ================================================ */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
 }
 
-/* ============================================
+h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.5rem;
+}
+
+h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+p {
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+/* ================================================
    Header
-   ============================================ */
-
+   ================================================ */
 header {
-    text-align: center;
-    margin-bottom: var(--spacing-3xl);
+  text-align: center;
+  padding: 80px 0 60px;
+  border-bottom: 1px solid var(--border);
 }
 
 header h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    margin-bottom: var(--spacing-sm);
-    color: var(--color-text-primary);
+  margin-bottom: 16px;
+}
+
+header h1 span {
+  color: var(--accent);
 }
 
 header p {
-    font-size: 0.9375rem;
-    color: var(--color-text-secondary);
-    font-weight: 400;
+  font-size: 1.125rem;
+  color: var(--text-muted);
+  max-width: 400px;
+  margin: 0 auto;
 }
 
-@media (max-width: 640px) {
-    header h1 {
-        font-size: 1.75rem;
-    }
-    
-    header p {
-        font-size: 0.875rem;
-    }
-}
-
-/* ============================================
-   Stats Grid
-   ============================================ */
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-xl);
-}
-
-@media (max-width: 640px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: var(--spacing-sm);
-    }
+/* ================================================
+   Stats Section
+   ================================================ */
+.stats-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
 }
 
 .stat-card {
-    background-color: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--spacing-lg);
-    transition: border-color var(--transition);
+  text-align: center;
+  padding: 28px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  transition: border-color 0.2s ease;
 }
 
 .stat-card:hover {
-    border-color: var(--color-border-hover);
+  border-color: var(--border-hover);
 }
 
-.stat-label {
-    font-size: 0.8125rem;
-    color: var(--color-text-muted);
-    font-weight: 500;
-    margin-bottom: var(--spacing-xs);
+.stat-card h3 {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 12px;
 }
 
-.stat-value {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    letter-spacing: -0.02em;
+.stat-card p {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  color: var(--text-primary);
+  margin: 0;
 }
 
-@media (max-width: 640px) {
-    .stat-value {
-        font-size: 1.25rem;
-    }
+/* ================================================
+   Sections
+   ================================================ */
+.claim-section,
+.status-section {
+  padding: 48px 0;
+  border-bottom: 1px solid var(--border);
 }
 
-/* ============================================
-   Card
-   ============================================ */
-
-.card {
-    background-color: var(--color-bg-elevated);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
-    margin-bottom: var(--spacing-xl);
+.claim-section h2,
+.status-section h2 {
+  text-align: center;
+  margin-bottom: 40px;
 }
 
-.card h2 {
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-xl);
-    color: var(--color-text-primary);
-}
-
-@media (max-width: 640px) {
-    .card {
-        padding: var(--spacing-lg);
-    }
-    
-    .card h2 {
-        font-size: 1rem;
-        margin-bottom: var(--spacing-lg);
-    }
-}
-
-/* ============================================
+/* ================================================
    Steps
-   ============================================ */
-
+   ================================================ */
 .step {
-    display: none;
-    padding-bottom: var(--spacing-xl);
-    border-bottom: 1px solid var(--color-border);
-    margin-bottom: var(--spacing-xl);
-}
-
-.step:last-of-type {
-    border-bottom: none;
-    padding-bottom: 0;
-    margin-bottom: 0;
+  display: none;
+  padding: 32px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  margin-bottom: 20px;
 }
 
 .step.active {
-    display: block;
-}
-
-.step-header {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-md);
-}
-
-.step-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    background-color: var(--color-accent-bg);
-    color: var(--color-accent);
-    border-radius: 50%;
-    font-size: 0.875rem;
-    font-weight: 600;
-    flex-shrink: 0;
+  display: block;
 }
 
 .step h3 {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--color-text-primary);
+  font-family: var(--font-display);
+  color: var(--text-primary);
+  margin-bottom: 12px;
 }
 
-.step-description {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-    margin-bottom: var(--spacing-lg);
-    line-height: 1.5;
+.step p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
 }
 
-/* ============================================
+/* ================================================
    Buttons
-   ============================================ */
-
+   ================================================ */
 .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 var(--spacing-lg);
-    height: 40px;
-    border: none;
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    font-size: 0.875rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all var(--transition);
-    outline: none;
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
+  display: inline-block;
+  padding: 14px 32px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .btn-primary {
-    background-color: var(--color-accent);
-    color: #09090b;
+  background: var(--accent);
+  color: #0a0a0a;
 }
 
-.btn-primary:hover:not(:disabled) {
-    background-color: var(--color-accent-hover);
-}
-
-.btn-primary:active:not(:disabled) {
-    transform: scale(0.98);
+.btn-primary:hover {
+  background: var(--accent-hover);
 }
 
 .btn-secondary {
-    background-color: transparent;
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border);
 }
 
-.btn-secondary:hover:not(:disabled) {
-    border-color: var(--color-border-hover);
-    background-color: var(--color-bg);
+.btn-secondary:hover {
+  border-color: var(--text-primary);
 }
 
-.btn-secondary:active:not(:disabled) {
-    transform: scale(0.98);
+/* ================================================
+   Inputs
+   ================================================ */
+input[type="text"] {
+  width: 100%;
+  padding: 16px 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  margin-bottom: 20px;
+  transition: border-color 0.2s ease;
 }
 
-@media (max-width: 640px) {
-    .btn {
-        width: 100%;
-    }
+input[type="text"]::placeholder {
+  color: var(--text-muted);
 }
 
-/* ============================================
-   Input
-   ============================================ */
-
-.input {
-    width: 100%;
-    height: 40px;
-    padding: 0 var(--spacing-md);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    font-family: inherit;
-    font-size: 0.875rem;
-    color: var(--color-text-primary);
-    transition: border-color var(--transition);
-    outline: none;
-    margin-bottom: var(--spacing-md);
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
-.input::placeholder {
-    color: var(--color-text-muted);
-}
-
-.input:focus {
-    border-color: var(--color-accent);
-}
-
-.input:hover:not(:focus) {
-    border-color: var(--color-border-hover);
-}
-
-/* ============================================
+/* ================================================
    Address Display
-   ============================================ */
-
-.address-display {
-    display: none;
-    margin-top: var(--spacing-md);
-    padding: var(--spacing-md);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8125rem;
-    color: var(--color-accent);
-    word-break: break-all;
+   ================================================ */
+.address {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.875rem;
+  background: var(--bg-elevated);
+  padding: 14px 18px;
+  border: 1px solid var(--border);
+  word-break: break-all;
+  color: var(--accent);
+  margin-top: 16px;
 }
 
-.address-display.visible {
-    display: block;
-}
-
-/* ============================================
-   Balance Display
-   ============================================ */
-
-.balance-display {
-    margin-bottom: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.balance-label {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-}
-
-.balance-value {
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: var(--color-accent);
-}
-
-@media (max-width: 640px) {
-    .balance-display {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-xs);
-    }
-}
-
-/* ============================================
-   Status Message
-   ============================================ */
-
-.status-message {
-    font-size: 0.875rem;
-    color: var(--color-text-secondary);
-}
-
-/* ============================================
-   Success State (Step 5)
-   ============================================ */
-
-.success-icon {
-    width: 48px;
-    height: 48px;
-    margin: 0 auto var(--spacing-lg);
-    background-color: var(--color-success-bg);
-    color: var(--color-success);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.success-title {
-    text-align: center;
-    font-size: 1.125rem;
-    font-weight: 600;
-    margin-bottom: var(--spacing-md);
-    color: var(--color-text-primary);
-}
-
-.claim-details {
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-}
-
-.detail-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--spacing-md);
-    padding: var(--spacing-sm) 0;
-}
-
-.detail-row:not(:last-child) {
-    border-bottom: 1px solid var(--color-border);
-}
-
-.detail-label {
-    font-size: 0.875rem;
-    color: var(--color-text-muted);
-}
-
-.detail-value {
-    font-size: 0.875rem;
-    color: var(--color-text-primary);
-    font-weight: 500;
-}
-
-.monospace {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.8125rem;
-    color: var(--color-accent);
-}
-
-@media (max-width: 640px) {
-    .detail-row {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: var(--spacing-xs);
-    }
-}
-
-/* ============================================
+/* ================================================
    Status Result
-   ============================================ */
-
-.status-result {
-    display: none;
-    margin-top: var(--spacing-lg);
-    padding: var(--spacing-lg);
-    background-color: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
-    font-size: 0.875rem;
+   ================================================ */
+#status-result {
+  margin-top: 24px;
+  padding: 24px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  text-align: left;
 }
 
-.status-result.visible {
-    display: block;
-}
-
-/* ============================================
+/* ================================================
    Footer
-   ============================================ */
-
+   ================================================ */
 footer {
+  text-align: center;
+  padding: 48px 0;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+}
+
+footer a {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+footer a:hover {
+  color: var(--accent);
+}
+
+/* ================================================
+   Responsive
+   ================================================ */
+@media (max-width: 640px) {
+  header {
+    padding: 60px 0 48px;
+  }
+  
+  h1 {
+    font-size: 2.25rem;
+  }
+  
+  .stats-section {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .step {
+    padding: 24px;
+  }
+  
+  .btn {
+    width: 100%;
     text-align: center;
-    padding-top: var(--spacing-3xl);
-}
-
-footer p {
-    font-size: 0.8125rem;
-    color: var(--color-text-muted);
-}
-
-/* ============================================
-   Utilities
-   ============================================ */
-
-.hidden {
-    display: none !important;
-}
-
-/* ============================================
-   Scrollbar (WebKit)
-   ============================================ */
-
-::-webkit-scrollbar {
-    width: 8px;
-}
-
-::-webkit-scrollbar-track {
-    background: var(--color-bg);
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--color-border);
-    border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--color-border-hover);
-}
-
-/* ============================================
-   Selection
-   ============================================ */
-
-::selection {
-    background-color: var(--color-accent-bg);
-    color: var(--color-accent-hover);
+  }
 }
