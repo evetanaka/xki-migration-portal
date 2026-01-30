@@ -288,3 +288,73 @@ function truncateAddress(addr) {
     if (!addr) return '';
     return addr.slice(0, 8) + '...' + addr.slice(-4);
 }
+
+// Check claim status by Ki address
+async function checkStatus() {
+    const input = document.getElementById('check-address');
+    const resultDiv = document.getElementById('status-result');
+    const address = input.value.trim();
+    
+    if (!address.startsWith('ki1')) {
+        resultDiv.className = 'mt-4 p-4 border border-red-900/30 bg-red-900/10';
+        resultDiv.innerHTML = '<p class="text-xs text-red-400">Please enter a valid Ki Chain address (ki1...)</p>';
+        return;
+    }
+    
+    resultDiv.className = 'mt-4 p-4 border border-white/10 bg-white/5';
+    resultDiv.innerHTML = '<p class="text-xs text-gray-400 animate-pulse">Checking status...</p>';
+    
+    try {
+        const res = await fetch(`${API_BASE}/claim/status/${address}`);
+        const data = await res.json();
+        
+        if (data.status === 'completed') {
+            resultDiv.className = 'mt-4 p-4 border border-green-900/30 bg-green-900/10';
+            resultDiv.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4 text-green-500"></i>
+                        <p class="text-xs text-green-400 uppercase tracking-wider">Claim Completed</p>
+                    </div>
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">Amount</span>
+                            <span class="text-white font-mono">${formatNumber(data.amount)} XKI</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">TX Hash</span>
+                            <a href="https://etherscan.io/tx/${data.txHash}" target="_blank" class="text-white font-mono hover:underline">${truncateAddress(data.txHash)}</a>
+                        </div>
+                    </div>
+                </div>
+            `;
+        } else if (data.status === 'pending') {
+            resultDiv.className = 'mt-4 p-4 border border-yellow-900/30 bg-yellow-900/10';
+            resultDiv.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4 text-yellow-500"></i>
+                    <p class="text-xs text-yellow-400 uppercase tracking-wider">Pending — Awaiting Processing</p>
+                </div>
+            `;
+        } else {
+            resultDiv.className = 'mt-4 p-4 border border-white/10 bg-white/5';
+            resultDiv.innerHTML = `
+                <div class="flex items-center gap-2">
+                    <i data-lucide="info" class="w-4 h-4 text-gray-500"></i>
+                    <p class="text-xs text-gray-400">No claim found for this address</p>
+                </div>
+            `;
+        }
+        
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    } catch (e) {
+        resultDiv.className = 'mt-4 p-4 border border-white/10 bg-white/5';
+        resultDiv.innerHTML = `
+            <div class="flex items-center gap-2">
+                <i data-lucide="info" class="w-4 h-4 text-gray-500"></i>
+                <p class="text-xs text-gray-400">No claim found for this address</p>
+            </div>
+        `;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
