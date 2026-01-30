@@ -1,6 +1,6 @@
 // XKI Migration Admin Dashboard - Keplr Auth
 
-const API_BASE = '/api';
+const API_BASE = 'https://api.foundation.ki/api';
 
 // Admin whitelist - only this wallet can access
 const ADMIN_WALLET = 'ki1ypnke0r4uk6u82w4gh73kc5tz0qsn0ahek0653';

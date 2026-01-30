@@ -1,6 +1,6 @@
 // XKI Migration Portal - App Logic
 
-const API_BASE = '/api';
+const API_BASE = 'https://api.foundation.ki/api';
 
 // State
 let currentStep = 1;
