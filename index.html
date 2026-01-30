@@ -4,97 +4,257 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XKI Migration Portal</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>XKI Migration Portal</h1>
-            <p>Migrate your Ki Chain tokens to Ethereum</p>
-        </div>
-    </header>
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Decorative Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    
+    <!-- Main Content -->
+    <div class="content-wrapper">
+        <header>
+            <div class="header-content parallax-layer" data-speed="0.3">
+                <div class="container">
+                    <h1>XKI Migration Portal</h1>
+                    <p>Seamlessly migrate your Ki Chain tokens to Ethereum</p>
+                </div>
+            </div>
+        </header>
 
-    <main class="container">
-        <!-- Stats Section -->
-        <section id="stats" class="stats-section">
-            <div class="stat-card">
-                <h3>Total Eligible</h3>
-                <p id="stat-eligible">--</p>
-            </div>
-            <div class="stat-card">
-                <h3>Total Claimed</h3>
-                <p id="stat-claimed">--</p>
-            </div>
-            <div class="stat-card">
-                <h3>Time Remaining</h3>
-                <p id="stat-countdown">--</p>
-            </div>
-        </section>
+        <main class="container">
+            <!-- Stats Section -->
+            <section id="stats" class="stats-section">
+                <div class="stat-card glow-box">
+                    <h3>Total Eligible</h3>
+                    <p id="stat-eligible">--</p>
+                </div>
+                <div class="stat-card glow-box">
+                    <h3>Total Claimed</h3>
+                    <p id="stat-claimed">--</p>
+                </div>
+                <div class="stat-card glow-box">
+                    <h3>Time Remaining</h3>
+                    <p id="stat-countdown">--</p>
+                </div>
+            </section>
 
-        <!-- Claim Section -->
-        <section id="claim-section" class="claim-section">
-            <h2>Claim Your Tokens</h2>
+            <!-- Claim Section -->
+            <section id="claim-section" class="claim-section glow-box">
+                <h2>Claim Your Tokens</h2>
+                
+                <!-- Step 1: Connect Keplr -->
+                <div id="step-1" class="step active">
+                    <h3>Step 1: Connect Keplr Wallet</h3>
+                    <p>Connect your Keplr wallet to verify your Ki Chain holdings.</p>
+                    <button id="btn-connect-keplr" class="btn btn-primary">
+                        Connect Keplr
+                    </button>
+                    <p id="ki-address" class="address" style="display: none;"></p>
+                </div>
+
+                <!-- Step 2: Check Eligibility -->
+                <div id="step-2" class="step">
+                    <h3>Step 2: Check Eligibility</h3>
+                    <p>Your balance: <span id="eligible-balance" class="glow-text">--</span> XKI</p>
+                    <p id="eligibility-status"></p>
+                </div>
+
+                <!-- Step 3: Enter ETH Address -->
+                <div id="step-3" class="step">
+                    <h3>Step 3: Enter Ethereum Address</h3>
+                    <p>Provide the Ethereum address where you want to receive your tokens.</p>
+                    <input type="text" id="eth-address" placeholder="0x..." />
+                    <button id="btn-prepare" class="btn btn-secondary">
+                        Prepare Claim
+                    </button>
+                </div>
+
+                <!-- Step 4: Sign Message -->
+                <div id="step-4" class="step">
+                    <h3>Step 4: Sign with Keplr</h3>
+                    <p>Sign the message to prove ownership of your Ki Chain wallet.</p>
+                    <button id="btn-sign" class="btn btn-primary">
+                        Sign Message
+                    </button>
+                </div>
+
+                <!-- Step 5: Confirmation -->
+                <div id="step-5" class="step">
+                    <h3>Claim Submitted!</h3>
+                    <p>Your claim has been submitted and is pending review.</p>
+                    <p>Claim ID: <span id="claim-id" class="glow-text">--</span></p>
+                    <p>You will receive your tokens at: <span id="confirmed-eth" class="address" style="display: inline; padding: 4px 8px;">--</span></p>
+                </div>
+            </section>
+
+            <!-- Check Status Section -->
+            <section id="status-section" class="status-section glow-box">
+                <h2>Check Claim Status</h2>
+                <input type="text" id="check-address" placeholder="Enter ki1... address" />
+                <button id="btn-check-status" class="btn btn-secondary">
+                    Check Status
+                </button>
+                <div id="status-result"></div>
+            </section>
+        </main>
+
+        <footer>
+            <div class="container">
+                <p>&copy; 2026 Ki Chain Foundation. All rights reserved.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Particles Configuration -->
+    <script>
+        particlesJS('particles-js', {
+            particles: {
+                number: {
+                    value: 80,
+                    density: {
+                        enable: true,
+                        value_area: 800
+                    }
+                },
+                color: {
+                    value: ['#8b5cf6', '#06b6d4', '#ec4899']
+                },
+                shape: {
+                    type: 'circle'
+                },
+                opacity: {
+                    value: 0.3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 0.5,
+                        opacity_min: 0.1,
+                        sync: false
+                    }
+                },
+                size: {
+                    value: 3,
+                    random: true,
+                    anim: {
+                        enable: true,
+                        speed: 2,
+                        size_min: 0.5,
+                        sync: false
+                    }
+                },
+                line_linked: {
+                    enable: true,
+                    distance: 150,
+                    color: '#8b5cf6',
+                    opacity: 0.15,
+                    width: 1
+                },
+                move: {
+                    enable: true,
+                    speed: 1,
+                    direction: 'none',
+                    random: true,
+                    straight: false,
+                    out_mode: 'out',
+                    bounce: false,
+                    attract: {
+                        enable: true,
+                        rotateX: 600,
+                        rotateY: 1200
+                    }
+                }
+            },
+            interactivity: {
+                detect_on: 'canvas',
+                events: {
+                    onhover: {
+                        enable: true,
+                        mode: 'grab'
+                    },
+                    onclick: {
+                        enable: true,
+                        mode: 'push'
+                    },
+                    resize: true
+                },
+                modes: {
+                    grab: {
+                        distance: 140,
+                        line_linked: {
+                            opacity: 0.4
+                        }
+                    },
+                    push: {
+                        particles_nb: 3
+                    }
+                }
+            },
+            retina_detect: true
+        });
+    </script>
+
+    <!-- Parallax Effect -->
+    <script>
+        document.addEventListener('mousemove', (e) => {
+            const layers = document.querySelectorAll('.parallax-layer');
+            const orbs = document.querySelectorAll('.orb');
             
-            <!-- Step 1: Connect Keplr -->
-            <div id="step-1" class="step active">
-                <h3>Step 1: Connect Keplr Wallet</h3>
-                <button id="btn-connect-keplr" class="btn btn-primary">
-                    Connect Keplr
-                </button>
-                <p id="ki-address" class="address"></p>
-            </div>
+            layers.forEach(layer => {
+                const speed = layer.dataset.speed || 0.1;
+                const x = (window.innerWidth / 2 - e.clientX) * speed;
+                const y = (window.innerHeight / 2 - e.clientY) * speed;
+                layer.style.transform = `translate(${x}px, ${y}px)`;
+            });
+            
+            orbs.forEach((orb, i) => {
+                const speed = (i + 1) * 0.02;
+                const x = (window.innerWidth / 2 - e.clientX) * speed;
+                const y = (window.innerHeight / 2 - e.clientY) * speed;
+                orb.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
 
-            <!-- Step 2: Check Eligibility -->
-            <div id="step-2" class="step">
-                <h3>Step 2: Check Eligibility</h3>
-                <p>Your balance: <span id="eligible-balance">--</span> XKI</p>
-                <p id="eligibility-status"></p>
-            </div>
+        // Scroll parallax
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const orbs = document.querySelectorAll('.orb');
+            
+            orbs.forEach((orb, i) => {
+                const speed = (i + 1) * 0.1;
+                orb.style.transform = `translateY(${scrolled * speed}px)`;
+            });
+        });
 
-            <!-- Step 3: Enter ETH Address -->
-            <div id="step-3" class="step">
-                <h3>Step 3: Enter Ethereum Address</h3>
-                <input type="text" id="eth-address" placeholder="0x..." />
-                <button id="btn-prepare" class="btn btn-secondary">
-                    Prepare Claim
-                </button>
-            </div>
+        // Intersection Observer for fade-in animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animationPlayState = 'running';
+                }
+            });
+        }, { threshold: 0.1 });
 
-            <!-- Step 4: Sign Message -->
-            <div id="step-4" class="step">
-                <h3>Step 4: Sign with Keplr</h3>
-                <p>Sign the message to prove ownership of your Ki Chain wallet.</p>
-                <button id="btn-sign" class="btn btn-primary">
-                    Sign Message
-                </button>
-            </div>
+        document.querySelectorAll('.stat-card, .claim-section, .status-section').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 
-            <!-- Step 5: Confirmation -->
-            <div id="step-5" class="step">
-                <h3>Claim Submitted!</h3>
-                <p>Your claim has been submitted and is pending review.</p>
-                <p>Claim ID: <span id="claim-id">--</span></p>
-                <p>You will receive your tokens at: <span id="confirmed-eth">--</span></p>
-            </div>
-        </section>
-
-        <!-- Check Status Section -->
-        <section id="status-section" class="status-section">
-            <h2>Check Claim Status</h2>
-            <input type="text" id="check-address" placeholder="Enter ki1... address" />
-            <button id="btn-check-status" class="btn btn-secondary">
-                Check Status
-            </button>
-            <div id="status-result"></div>
-        </section>
-    </main>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 Ki Chain Foundation. All rights reserved.</p>
-        </div>
-    </footer>
-
+    <!-- Main App Logic -->
     <script src="js/app.js"></script>
 </body>
 </html>
