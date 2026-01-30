@@ -108,32 +108,57 @@ async function authenticateWithKeplr() {
     }
     
     try {
+        // Ki Chain RPC is down due to migration, so we add it with a local placeholder
+        // The key derivation still works since it's based on the mnemonic + coin type 118
         const chainId = 'kichain-2';
         
-        // Enable Ki Chain in Keplr
+        // Try to enable Ki Chain (may already be configured)
         try {
             await window.keplr.enable(chainId);
         } catch (enableErr) {
-            // Ki Chain might need to be added
-            await window.keplr.experimentalSuggestChain({
-                chainId: "kichain-2",
-                chainName: "Ki Chain",
-                rpc: "https://rpc-mainnet.blockchain.ki",
-                rest: "https://api-mainnet.blockchain.ki",
-                bip44: { coinType: 118 },
-                bech32Config: {
-                    bech32PrefixAccAddr: "ki",
-                    bech32PrefixAccPub: "kipub",
-                    bech32PrefixValAddr: "kivaloper",
-                    bech32PrefixValPub: "kivaloperpub",
-                    bech32PrefixConsAddr: "kivalcons",
-                    bech32PrefixConsPub: "kivalconspub"
-                },
-                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
-            });
-            await window.keplr.enable(chainId);
+            console.log('Ki Chain not available, suggesting chain config...');
+            // Suggest Ki Chain with a working RPC (or placeholder since we only need signing)
+            try {
+                await window.keplr.experimentalSuggestChain({
+                    chainId: "kichain-2",
+                    chainName: "Ki Chain (Migration)",
+                    rpc: "https://rpc.cosmos.directory/kichain",
+                    rest: "https://rest.cosmos.directory/kichain",
+                    bip44: { coinType: 118 },
+                    bech32Config: {
+                        bech32PrefixAccAddr: "ki",
+                        bech32PrefixAccPub: "kipub",
+                        bech32PrefixValAddr: "kivaloper",
+                        bech32PrefixValPub: "kivaloperpub",
+                        bech32PrefixConsAddr: "kivalcons",
+                        bech32PrefixConsPub: "kivalconspub"
+                    },
+                    currencies: [{ 
+                        coinDenom: "XKI", 
+                        coinMinimalDenom: "uxki", 
+                        coinDecimals: 6
+                    }],
+                    feeCurrencies: [{ 
+                        coinDenom: "XKI", 
+                        coinMinimalDenom: "uxki", 
+                        coinDecimals: 6,
+                        gasPriceStep: {
+                            low: 0.025,
+                            average: 0.03,
+                            high: 0.04
+                        }
+                    }],
+                    stakeCurrency: { 
+                        coinDenom: "XKI", 
+                        coinMinimalDenom: "uxki", 
+                        coinDecimals: 6
+                    }
+                });
+                await window.keplr.enable(chainId);
+            } catch (suggestErr) {
+                console.error('Failed to suggest chain:', suggestErr);
+                throw new Error('Could not configure Ki Chain in Keplr. Please ensure Keplr is unlocked and try again.');
+            }
         }
         
         // Get the key/address
