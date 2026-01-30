@@ -123,26 +123,69 @@ function transitionToStep(nextStep) {
 
 // Step 1 -> 2: Connect Keplr
 async function handleConnect() {
+    console.log('handleConnect called');
     const btn = document.querySelector('#step-content button');
-    if (btn) btn.innerHTML = "Connecting...";
+    if (btn) {
+        btn.innerHTML = "Connecting...";
+        btn.disabled = true;
+    }
     
     if (!window.keplr) {
-        alert('Please install Keplr extension to connect your Ki Chain wallet.');
-        if (btn) btn.innerHTML = "Connect Keplr";
+        // Show install prompt
+        const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
+        if (confirmInstall) {
+            window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
+        }
+        if (btn) {
+            btn.innerHTML = "Connect Keplr";
+            btn.disabled = false;
+        }
         return;
     }
     
     try {
         const chainId = 'kichain-2';
+        
+        // First, try to enable the chain (may prompt user)
+        try {
+            await window.keplr.enable(chainId);
+        } catch (enableErr) {
+            console.log('Chain not configured, trying to suggest:', enableErr);
+            // Ki Chain might need to be added - suggest it
+            await window.keplr.experimentalSuggestChain({
+                chainId: "kichain-2",
+                chainName: "Ki Chain",
+                rpc: "https://rpc-mainnet.blockchain.ki",
+                rest: "https://api-mainnet.blockchain.ki",
+                bip44: { coinType: 118 },
+                bech32Config: {
+                    bech32PrefixAccAddr: "ki",
+                    bech32PrefixAccPub: "kipub",
+                    bech32PrefixValAddr: "kivaloper",
+                    bech32PrefixValPub: "kivaloperpub",
+                    bech32PrefixConsAddr: "kivalcons",
+                    bech32PrefixConsPub: "kivalconspub"
+                },
+                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
+            });
+            await window.keplr.enable(chainId);
+        }
+        
         const key = await window.keplr.getKey(chainId);
         state.kiAddress = key.bech32Address;
+        console.log('Connected:', state.kiAddress);
         
         // Check eligibility
         await checkEligibility();
     } catch (e) {
         console.error('Keplr error:', e);
-        alert('Error connecting to Keplr. Make sure Ki Chain is configured in your wallet.');
-        if (btn) btn.innerHTML = "Connect Keplr";
+        alert('Error connecting to Keplr:\n' + e.message);
+        if (btn) {
+            btn.innerHTML = "Connect Keplr";
+            btn.disabled = false;
+        }
     }
 }
 
