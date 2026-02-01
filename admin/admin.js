@@ -326,7 +326,7 @@ function renderClaims(claims) {
             <td class="py-4 px-6">
                 <span class="font-mono text-xs text-gray-300" title="${claim.ethAddress}">${truncate(claim.ethAddress, 18)}</span>
             </td>
-            <td class="py-4 px-6 text-sm text-white font-medium">${formatNumber(claim.amount)}</td>
+            <td class="py-4 px-6 text-sm text-white font-medium">${formatXKI(claim.amount)} XKI</td>
             <td class="py-4 px-6">
                 <span class="text-[10px] uppercase tracking-widest font-bold ${getStatusClass(claim.status)}">${claim.status}</span>
             </td>
@@ -361,7 +361,7 @@ async function viewClaim(id) {
         document.getElementById('detail-id').textContent = claim.id;
         document.getElementById('detail-ki').textContent = claim.kiAddress;
         document.getElementById('detail-eth').textContent = claim.ethAddress;
-        document.getElementById('detail-amount').textContent = formatNumber(claim.amount);
+        document.getElementById('detail-amount').textContent = formatXKI(claim.amount);
         document.getElementById('detail-sig').textContent = claim.signature || 'N/A';
         
         const statusEl = document.getElementById('detail-status');
@@ -488,12 +488,12 @@ async function exportCSV() {
         const claims = await res.json();
         
         const csv = [
-            ['ID', 'Ki Address', 'ETH Address', 'Amount', 'Status', 'TX Hash', 'Created'].join(','),
+            ['ID', 'Ki Address', 'ETH Address', 'Amount (XKI)', 'Status', 'TX Hash', 'Created'].join(','),
             ...claims.map(c => [
                 c.id,
                 c.kiAddress,
                 c.ethAddress,
-                c.amount,
+                (c.amount / 1000000).toFixed(6),
                 c.status,
                 c.txHash || '',
                 c.createdAt
@@ -520,6 +520,12 @@ function truncate(str, len) {
 
 function formatNumber(num) {
     return new Intl.NumberFormat().format(num);
+}
+
+function formatXKI(uxki) {
+    if (!uxki) return '—';
+    const xki = uxki / 1000000;
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(xki);
 }
 
 function formatDate(dateStr) {

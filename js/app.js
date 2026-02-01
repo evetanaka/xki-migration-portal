@@ -79,7 +79,7 @@ function renderStep(step) {
             const displayAddr = document.getElementById('display-address');
             const amountDisplay = document.getElementById('amount-display');
             if (displayAddr) displayAddr.textContent = state.ethAddress || "0x...";
-            if (amountDisplay && state.balance) amountDisplay.textContent = `${formatNumber(state.balance)} XKI`;
+            if (amountDisplay && state.balance) amountDisplay.textContent = `${formatXKI(state.balance)} XKI`;
         }
         
         if (step === 5) {
@@ -341,7 +341,7 @@ async function checkStatus() {
                     <div class="space-y-2 text-[11px]">
                         <div class="flex justify-between">
                             <span class="text-gray-500">Amount</span>
-                            <span class="text-white font-mono">${formatNumber(data.amount)} XKI</span>
+                            <span class="text-white font-mono">${formatXKI(data.amount)} XKI</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-gray-500">TX Hash</span>
@@ -386,6 +386,12 @@ async function checkStatus() {
 function formatNumber(num) {
     if (!num) return '—';
     return new Intl.NumberFormat().format(num);
+}
+
+function formatXKI(uxki) {
+    if (!uxki) return '—';
+    const xki = uxki / 1000000;
+    return new Intl.NumberFormat(undefined, { maximumFractionDigits: 2 }).format(xki);
 }
 
 function formatCountdown(deadline) {
