@@ -535,3 +535,371 @@ function formatDate(dateStr) {
 
 // Make viewClaim globally accessible
 window.viewClaim = viewClaim;
+
+// ============================================
+// GOVERNANCE MANAGEMENT
+// ============================================
+
+let proposals = [];
+let currentProposalDetail = null;
+
+// Load proposals when dashboard loads
+async function loadProposals() {
+    const tbody = document.getElementById('proposals-body');
+    const emptyState = document.getElementById('proposals-empty');
+    if (!tbody) return;
+
+    try {
+        const res = await apiCall('/governance/admin/proposals');
+        proposals = await res.json();
+        proposals = proposals.proposals || [];
+        renderProposalsTable();
+    } catch (e) {
+        console.error('Error loading proposals:', e);
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+    }
+}
+
+// Render proposals table
+function renderProposalsTable() {
+    const tbody = document.getElementById('proposals-body');
+    const emptyState = document.getElementById('proposals-empty');
+    if (!tbody) return;
+
+    if (proposals.length === 0) {
+        tbody.innerHTML = '';
+        if (emptyState) emptyState.classList.remove('hidden');
+        return;
+    }
+
+    if (emptyState) emptyState.classList.add('hidden');
+
+    tbody.innerHTML = proposals.map(p => {
+        const statusColors = {
+            'draft': 'text-gray-400 bg-gray-900/50',
+            'active': 'text-green-400 bg-green-900/30',
+            'ended': 'text-yellow-400 bg-yellow-900/30',
+            'passed': 'text-blue-400 bg-blue-900/30',
+            'rejected': 'text-red-400 bg-red-900/30'
+        };
+
+        const totalVotes = BigInt(p.votesFor) + BigInt(p.votesAgainst) + BigInt(p.votesAbstain);
+        const forPercent = totalVotes > 0n ? Number((BigInt(p.votesFor) * 100n) / totalVotes) : 0;
+        const againstPercent = totalVotes > 0n ? Number((BigInt(p.votesAgainst) * 100n) / totalVotes) : 0;
+
+        return `
+            <tr class="hover:bg-white/5 transition-colors cursor-pointer" onclick="viewProposal(${p.id})">
+                <td class="py-4 px-6 text-sm font-mono text-gray-400">${p.proposalNumber}</td>
+                <td class="py-4 px-6 text-sm text-white">${escapeHtml(p.title)}</td>
+                <td class="py-4 px-6">
+                    <span class="text-[10px] uppercase tracking-wider px-2 py-1 ${statusColors[p.status] || 'text-gray-400 bg-gray-900/50'}">${p.status}</span>
+                </td>
+                <td class="py-4 px-6">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-green-400">${forPercent}%</span>
+                        <div class="w-16 h-1 bg-gray-800 flex overflow-hidden">
+                            <div class="bg-green-500" style="width: ${forPercent}%"></div>
+                            <div class="bg-red-500" style="width: ${againstPercent}%"></div>
+                        </div>
+                        <span class="text-xs text-red-400">${againstPercent}%</span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 mt-1">${p.voterCount} voters</div>
+                </td>
+                <td class="py-4 px-6 text-sm text-gray-400">${formatDate(p.endDate)}</td>
+                <td class="py-4 px-6">
+                    <button onclick="event.stopPropagation(); editProposal(${p.id})" class="px-3 py-1 text-[10px] uppercase tracking-wider border border-white/20 text-gray-400 hover:text-white hover:border-white/40 transition-all mr-2">
+                        Edit
+                    </button>
+                    <button onclick="event.stopPropagation(); viewProposal(${p.id})" class="px-3 py-1 text-[10px] uppercase tracking-wider border border-white/20 text-gray-400 hover:text-white hover:border-white/40 transition-all">
+                        View
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Open new proposal modal
+function openNewProposalModal() {
+    document.getElementById('proposal-modal-title').textContent = 'New Proposal';
+    document.getElementById('proposal-id').value = '';
+    document.getElementById('proposal-title').value = '';
+    document.getElementById('proposal-description').value = '';
+    document.getElementById('proposal-status').value = 'draft';
+    document.getElementById('btn-delete-proposal').classList.add('hidden');
+    
+    // Set default dates (start: now, end: 7 days from now)
+    const now = new Date();
+    const end = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    document.getElementById('proposal-start').value = now.toISOString().slice(0, 16);
+    document.getElementById('proposal-end').value = end.toISOString().slice(0, 16);
+    
+    document.getElementById('proposal-modal').classList.remove('hidden');
+    document.getElementById('proposal-modal').classList.add('flex');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Edit proposal
+function editProposal(id) {
+    const proposal = proposals.find(p => p.id === id);
+    if (!proposal) return;
+
+    document.getElementById('proposal-modal-title').textContent = 'Edit Proposal';
+    document.getElementById('proposal-id').value = proposal.id;
+    document.getElementById('proposal-title').value = proposal.title;
+    document.getElementById('proposal-description').value = proposal.description;
+    document.getElementById('proposal-status').value = proposal.status;
+    document.getElementById('proposal-start').value = proposal.startDate.slice(0, 16);
+    document.getElementById('proposal-end').value = proposal.endDate.slice(0, 16);
+    
+    // Show delete button only for drafts
+    if (proposal.status === 'draft') {
+        document.getElementById('btn-delete-proposal').classList.remove('hidden');
+    } else {
+        document.getElementById('btn-delete-proposal').classList.add('hidden');
+    }
+    
+    document.getElementById('proposal-modal').classList.remove('hidden');
+    document.getElementById('proposal-modal').classList.add('flex');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Close proposal modal
+function closeProposalModal() {
+    document.getElementById('proposal-modal').classList.add('hidden');
+    document.getElementById('proposal-modal').classList.remove('flex');
+}
+
+// Save proposal
+async function saveProposal() {
+    const id = document.getElementById('proposal-id').value;
+    const title = document.getElementById('proposal-title').value.trim();
+    const description = document.getElementById('proposal-description').value.trim();
+    const startDate = document.getElementById('proposal-start').value;
+    const endDate = document.getElementById('proposal-end').value;
+    const status = document.getElementById('proposal-status').value;
+
+    if (!title || !description || !startDate || !endDate) {
+        alert('Please fill in all required fields');
+        return;
+    }
+
+    const data = {
+        title,
+        description,
+        startDate: new Date(startDate).toISOString(),
+        endDate: new Date(endDate).toISOString(),
+        status
+    };
+
+    try {
+        const btn = document.getElementById('btn-save-proposal');
+        btn.textContent = 'Saving...';
+        btn.disabled = true;
+
+        let res;
+        if (id) {
+            res = await apiCall(`/governance/admin/proposals/${id}`, 'PUT', data);
+        } else {
+            res = await apiCall('/governance/admin/proposals', 'POST', data);
+        }
+
+        const result = await res.json();
+        
+        if (result.success) {
+            closeProposalModal();
+            loadProposals();
+        } else {
+            alert('Error: ' + (result.error || 'Unknown error'));
+        }
+
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Proposal';
+        btn.disabled = false;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    } catch (e) {
+        alert('Error saving proposal: ' + e.message);
+        const btn = document.getElementById('btn-save-proposal');
+        btn.innerHTML = '<i data-lucide="save" class="w-4 h-4"></i> Save Proposal';
+        btn.disabled = false;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+}
+
+// Delete proposal
+async function deleteProposal() {
+    const id = document.getElementById('proposal-id').value;
+    if (!id) return;
+
+    if (!confirm('Are you sure you want to delete this proposal?')) return;
+
+    try {
+        const res = await apiCall(`/governance/admin/proposals/${id}`, 'DELETE');
+        const result = await res.json();
+
+        if (result.success) {
+            closeProposalModal();
+            loadProposals();
+        } else {
+            alert('Error: ' + (result.error || 'Only draft proposals can be deleted'));
+        }
+    } catch (e) {
+        alert('Error deleting proposal: ' + e.message);
+    }
+}
+
+// View proposal details with votes
+async function viewProposal(id) {
+    try {
+        const res = await apiCall(`/governance/proposals/${id}/votes`);
+        const data = await res.json();
+        
+        currentProposalDetail = data.proposal;
+        const votes = data.votes || [];
+
+        // Update modal content
+        document.getElementById('detail-proposal-number').textContent = data.proposal.proposalNumber;
+        document.getElementById('detail-proposal-title').textContent = data.proposal.title;
+
+        // Calculate percentages
+        const totalPower = BigInt(data.proposal.votesFor) + BigInt(data.proposal.votesAgainst) + BigInt(data.proposal.votesAbstain);
+        const forPct = totalPower > 0n ? Number((BigInt(data.proposal.votesFor) * 100n) / totalPower) : 0;
+        const againstPct = totalPower > 0n ? Number((BigInt(data.proposal.votesAgainst) * 100n) / totalPower) : 0;
+        const abstainPct = totalPower > 0n ? Number((BigInt(data.proposal.votesAbstain) * 100n) / totalPower) : 0;
+
+        document.getElementById('detail-votes-for').textContent = formatXKI(data.proposal.votesFor);
+        document.getElementById('detail-votes-for-percent').textContent = forPct + '%';
+        document.getElementById('detail-votes-against').textContent = formatXKI(data.proposal.votesAgainst);
+        document.getElementById('detail-votes-against-percent').textContent = againstPct + '%';
+        document.getElementById('detail-votes-abstain').textContent = formatXKI(data.proposal.votesAbstain);
+        document.getElementById('detail-votes-abstain-percent').textContent = abstainPct + '%';
+        document.getElementById('detail-voter-count').textContent = data.proposal.voterCount;
+        document.getElementById('detail-total-power').textContent = formatXKI(totalPower.toString()) + ' XKI';
+
+        // Render votes list
+        const votesList = document.getElementById('votes-list');
+        if (votes.length === 0) {
+            votesList.innerHTML = '<p class="text-gray-500 text-sm text-center py-4">No votes yet</p>';
+        } else {
+            votesList.innerHTML = votes.slice(0, 20).map(v => {
+                const voteColors = {
+                    'for': 'text-green-400',
+                    'against': 'text-red-400',
+                    'abstain': 'text-gray-400'
+                };
+                return `
+                    <div class="flex justify-between items-center py-2 border-b border-white/5">
+                        <span class="font-mono text-xs text-gray-400">${truncate(v.kiAddress, 20)}</span>
+                        <span class="${voteColors[v.voteChoice]} text-xs uppercase tracking-wider">${v.voteChoice}</span>
+                        <span class="text-xs text-gray-500">${formatXKI(v.votingPower)} XKI</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Show/hide finalize button based on status
+        const finalizeBtn = document.getElementById('btn-finalize-proposal');
+        if (data.proposal.status === 'ended' || data.proposal.status === 'active') {
+            finalizeBtn.classList.remove('hidden');
+        } else {
+            finalizeBtn.classList.add('hidden');
+        }
+
+        document.getElementById('proposal-detail-modal').classList.remove('hidden');
+        document.getElementById('proposal-detail-modal').classList.add('flex');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    } catch (e) {
+        console.error('Error loading proposal:', e);
+        alert('Error loading proposal details');
+    }
+}
+
+// Close proposal detail modal
+function closeProposalDetailModal() {
+    document.getElementById('proposal-detail-modal').classList.add('hidden');
+    document.getElementById('proposal-detail-modal').classList.remove('flex');
+    currentProposalDetail = null;
+}
+
+// Finalize proposal
+async function finalizeProposal() {
+    if (!currentProposalDetail) return;
+
+    if (!confirm('Are you sure you want to finalize this proposal? This will determine if it passed or was rejected.')) return;
+
+    try {
+        const res = await apiCall(`/governance/admin/proposals/${currentProposalDetail.id}/finalize`, 'POST');
+        const result = await res.json();
+
+        if (result.success) {
+            alert('Proposal finalized as: ' + result.proposal.status.toUpperCase());
+            closeProposalDetailModal();
+            loadProposals();
+        } else {
+            alert('Error: ' + (result.error || 'Unknown error'));
+        }
+    } catch (e) {
+        alert('Error finalizing proposal: ' + e.message);
+    }
+}
+
+// Helper: Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Setup governance event listeners
+function setupGovernanceListeners() {
+    // New proposal button
+    const btnNew = document.getElementById('btn-new-proposal');
+    if (btnNew) btnNew.addEventListener('click', openNewProposalModal);
+
+    // Close proposal modal
+    document.querySelectorAll('.close-proposal').forEach(btn => {
+        btn.addEventListener('click', closeProposalModal);
+    });
+
+    // Close proposal detail modal
+    document.querySelectorAll('.close-proposal-detail').forEach(btn => {
+        btn.addEventListener('click', closeProposalDetailModal);
+    });
+
+    // Save proposal
+    const btnSave = document.getElementById('btn-save-proposal');
+    if (btnSave) btnSave.addEventListener('click', saveProposal);
+
+    // Delete proposal
+    const btnDelete = document.getElementById('btn-delete-proposal');
+    if (btnDelete) btnDelete.addEventListener('click', deleteProposal);
+
+    // Edit from detail modal
+    const btnEdit = document.getElementById('btn-edit-proposal');
+    if (btnEdit) btnEdit.addEventListener('click', () => {
+        if (currentProposalDetail) {
+            closeProposalDetailModal();
+            editProposal(currentProposalDetail.id);
+        }
+    });
+
+    // Finalize
+    const btnFinalize = document.getElementById('btn-finalize-proposal');
+    if (btnFinalize) btnFinalize.addEventListener('click', finalizeProposal);
+}
+
+// Make functions globally accessible
+window.viewProposal = viewProposal;
+window.editProposal = editProposal;
+
+// Modify showDashboard to also load proposals
+const originalShowDashboard = showDashboard;
+showDashboard = function() {
+    originalShowDashboard();
+    setTimeout(() => {
+        loadProposals();
+        setupGovernanceListeners();
+    }, 100);
+};
