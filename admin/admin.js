@@ -702,9 +702,17 @@ async function saveProposal() {
 
         let res;
         if (id) {
-            res = await apiCall(`/governance/admin/proposals/${id}`, 'PUT', data);
+            res = await apiCall(`/governance/admin/proposals/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
         } else {
-            res = await apiCall('/governance/admin/proposals', 'POST', data);
+            res = await apiCall('/governance/admin/proposals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
         }
 
         const result = await res.json();
@@ -736,7 +744,7 @@ async function deleteProposal() {
     if (!confirm('Are you sure you want to delete this proposal?')) return;
 
     try {
-        const res = await apiCall(`/governance/admin/proposals/${id}`, 'DELETE');
+        const res = await apiCall(`/governance/admin/proposals/${id}`, { method: 'DELETE' });
         const result = await res.json();
 
         if (result.success) {
@@ -830,7 +838,7 @@ async function finalizeProposal() {
     if (!confirm('Are you sure you want to finalize this proposal? This will determine if it passed or was rejected.')) return;
 
     try {
-        const res = await apiCall(`/governance/admin/proposals/${currentProposalDetail.id}/finalize`, 'POST');
+        const res = await apiCall(`/governance/admin/proposals/${currentProposalDetail.id}/finalize`, { method: 'POST' });
         const result = await res.json();
 
         if (result.success) {
