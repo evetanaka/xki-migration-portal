@@ -72,8 +72,8 @@ async function loadStats() {
         const claimed = document.getElementById('stat-claimed');
         const countdown = document.getElementById('stat-countdown');
         
-        if (eligible) eligible.textContent = formatXKI(data.totalEligible);
-        if (claimed) claimed.textContent = formatXKI(data.totalClaimed);
+        if (eligible) eligible.textContent = formatNumber(data.totalEligible);
+        if (claimed) claimed.textContent = formatXKI(data.totalClaimed) + ' XKI';
         if (countdown) countdown.textContent = formatCountdown(data.deadline);
     } catch (e) {
         console.log('Stats not available yet');
