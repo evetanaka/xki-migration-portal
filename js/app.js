@@ -229,12 +229,15 @@ async function checkEligibility() {
         const res = await fetch(`${API_BASE}/eligibility/${state.kiAddress}`);
         const data = await res.json();
         
-        if (data.eligible) {
-            state.balance = data.balance;
-            transitionToStep(2);
-        } else if (data.claimed) {
+        if (data.claimed) {
+            state.balance = data.balance || data.amount;
+            showClaimCompleted();
+        } else if (data.pending) {
             state.balance = data.balance || data.amount;
             showClaimPending();
+        } else if (data.eligible) {
+            state.balance = data.balance;
+            transitionToStep(2);
         } else {
             alert('This address is not eligible for migration.');
         }
@@ -414,6 +417,41 @@ async function checkStatus() {
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+}
+
+// Show claim completed screen
+function showClaimCompleted() {
+    const container = document.getElementById('step-container');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="max-w-2xl mx-auto text-center py-16 px-4">
+            <div class="mb-6 text-sm uppercase tracking-[0.3em] text-gray-500 font-mono">Migration Complete</div>
+            <h2 class="text-3xl md:text-4xl font-serif text-white mb-8">Claim validé</h2>
+            
+            <div class="border border-gray-800 p-8 mb-8">
+                <div class="flex items-center gap-3 mb-6 justify-center">
+                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span class="text-green-500 text-sm uppercase tracking-widest font-mono">Complété</span>
+                </div>
+                
+                <p class="text-gray-400 leading-relaxed mb-6">
+                    Votre migration a été validée. Vos tokens ERC-20 XKI ont été distribués.
+                </p>
+                
+                ${state.balance ? `
+                <div class="border-t border-gray-800 pt-6 mt-6">
+                    <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Montant migré</div>
+                    <div class="text-2xl font-serif text-white">\${formatXKI(state.balance)} <span class="text-lg text-gray-600">XKI</span></div>
+                </div>` : ''}
+                
+                <div class="border-t border-gray-800 pt-6 mt-6">
+                    <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Adresse</div>
+                    <div class="text-sm font-mono text-gray-400">${state.kiAddress}</div>
+                </div>
+            </div>
+        </div>
+    `;
 }
 
 // Show claim pending/validation screen
