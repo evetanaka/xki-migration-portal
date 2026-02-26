@@ -692,7 +692,7 @@ async function openVoteModal(proposalId) {
     // Update modal content
     document.getElementById('modal-proposal-number').textContent = proposal.proposalNumber;
     document.getElementById('modal-proposal-title').textContent = proposal.title;
-    document.getElementById('modal-proposal-desc').textContent = proposal.description;
+    document.getElementById('modal-proposal-desc').innerHTML = renderMarkdown(proposal.description);
 
     // Reset vote buttons
     document.querySelectorAll('.vote-btn').forEach(btn => {
@@ -877,6 +877,47 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Simple markdown to HTML parser
+function renderMarkdown(text) {
+    if (!text) return '';
+    let html = escapeHtml(text);
+    // Headings
+    html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+    html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+    html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
+    // Bold & italic
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+    // Blockquotes
+    html = html.replace(/^&gt; (.+)$/gm, '<blockquote>$1</blockquote>');
+    // Unordered lists
+    html = html.replace(/^- (.+)$/gm, '<li>$1</li>');
+    html = html.replace(/((<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
+    // Horizontal rules
+    html = html.replace(/^---$/gm, '<hr>');
+    // Links
+    html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank">$1</a>');
+    // Inline code
+    html = html.replace(/`(.+?)`/g, '<code>$1</code>');
+    // Paragraphs (double newline)
+    html = html.replace(/\n\n/g, '</p><p>');
+    // Single newlines within text
+    html = html.replace(/\n/g, '<br>');
+    // Wrap in paragraph
+    html = '<p>' + html + '</p>';
+    // Clean up empty paragraphs
+    html = html.replace(/<p>\s*<\/p>/g, '');
+    // Fix headings wrapped in p tags
+    html = html.replace(/<p>(<h[123]>)/g, '$1');
+    html = html.replace(/(<\/h[123]>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<ul>)/g, '$1');
+    html = html.replace(/(<\/ul>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<hr>)<\/p>/g, '$1');
+    html = html.replace(/<p>(<blockquote>)/g, '$1');
+    html = html.replace(/(<\/blockquote>)<\/p>/g, '$1');
+    return html;
 }
 
 // Load proposals on page load

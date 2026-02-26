@@ -47,6 +47,22 @@
             transition: background-color 5000s ease-in-out 0s;
         }
 
+        /* Proposal markdown content */
+        .proposal-content h1 { font-size: 1.25rem; font-weight: 600; color: white; margin: 1.5rem 0 0.75rem; font-family: 'Cinzel', serif; }
+        .proposal-content h2 { font-size: 1.1rem; font-weight: 600; color: white; margin: 1.25rem 0 0.5rem; font-family: 'Cinzel', serif; }
+        .proposal-content h3 { font-size: 0.95rem; font-weight: 600; color: rgba(255,255,255,0.85); margin: 1rem 0 0.5rem; }
+        .proposal-content p { margin: 0.5rem 0; line-height: 1.7; }
+        .proposal-content strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+        .proposal-content em { font-style: italic; color: rgba(255,255,255,0.7); }
+        .proposal-content ul, .proposal-content ol { margin: 0.5rem 0 0.5rem 1.5rem; }
+        .proposal-content li { margin: 0.25rem 0; line-height: 1.6; }
+        .proposal-content ul li { list-style: disc; }
+        .proposal-content ol li { list-style: decimal; }
+        .proposal-content blockquote { border-left: 2px solid rgba(255,255,255,0.2); padding-left: 1rem; margin: 0.75rem 0; color: rgba(255,255,255,0.5); }
+        .proposal-content code { background: rgba(255,255,255,0.08); padding: 0.15rem 0.4rem; border-radius: 3px; font-size: 0.85em; }
+        .proposal-content hr { border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 1rem 0; }
+        .proposal-content a { color: rgba(255,255,255,0.7); text-decoration: underline; }
+
         /* Utility for hiding scrollbar if needed */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -167,7 +183,7 @@
 
         <!-- Vote Modal -->
         <div id="vote-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-            <div class="glass-panel w-full max-w-lg m-4 p-8">
+            <div class="glass-panel w-full max-w-3xl m-4 p-8 max-h-[90vh] overflow-y-auto">
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <span id="modal-proposal-number" class="text-[10px] uppercase tracking-widest text-gray-500"></span>
@@ -178,7 +194,7 @@
                     </button>
                 </div>
                 
-                <p id="modal-proposal-desc" class="text-sm text-gray-400 mb-6 leading-relaxed max-h-32 overflow-y-auto"></p>
+                <div id="modal-proposal-desc" class="text-sm text-gray-400 mb-6 leading-relaxed max-h-[50vh] overflow-y-auto proposal-content"></div>
                 
                 <!-- Voting Power -->
                 <div class="bg-white/5 border border-white/10 p-4 mb-6">
@@ -353,7 +369,7 @@
     </template>
 
     <!-- Logic -->
-    <script src="js/app.js?v=1772145996"></script>
+    <script src="js/app.js?v=1772146208"></script>
     <script>
         // Initialize Lucide icons after page load
         document.addEventListener('DOMContentLoaded', () => {
