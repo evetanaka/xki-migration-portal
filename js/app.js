@@ -36,8 +36,31 @@ const TITLES = {
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     loadStats();
+    restoreWalletSession();
     if (typeof lucide !== 'undefined') lucide.createIcons();
 });
+
+// Restore wallet connection on page reload
+async function restoreWalletSession() {
+    const saved = localStorage.getItem('xki_wallet');
+    if (!saved || !window.keplr) return;
+    
+    try {
+        const chainId = 'kichain-2';
+        await window.keplr.enable(chainId);
+        const key = await window.keplr.getKey(chainId);
+        
+        if (key.bech32Address === saved) {
+            state.kiAddress = saved;
+            await checkEligibility();
+        } else {
+            localStorage.removeItem('xki_wallet');
+        }
+    } catch (e) {
+        console.log('Could not restore wallet session:', e.message);
+        localStorage.removeItem('xki_wallet');
+    }
+}
 
 // Load Stats from API
 async function loadStats() {
@@ -185,6 +208,7 @@ async function handleConnect() {
         
         const key = await window.keplr.getKey(chainId);
         state.kiAddress = key.bech32Address;
+        localStorage.setItem('xki_wallet', state.kiAddress);
         console.log('Connected:', state.kiAddress);
         
         // Check eligibility
