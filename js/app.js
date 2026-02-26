@@ -421,8 +421,12 @@ async function checkStatus() {
 
 // Show claim completed screen
 function showClaimCompleted() {
-    const container = document.getElementById('step-container');
+    const container = document.getElementById('step-content');
     if (!container) return;
+    const indicator = document.getElementById('step-indicator');
+    const title = document.getElementById('step-title');
+    if (indicator) indicator.textContent = 'Migration Complete';
+    if (title) title.textContent = 'Claim validé';
     
     container.innerHTML = `
         <div class="max-w-2xl mx-auto text-center py-16 px-4">
@@ -456,8 +460,12 @@ function showClaimCompleted() {
 
 // Show claim pending/validation screen
 function showClaimPending() {
-    const container = document.getElementById('step-container');
+    const container = document.getElementById('step-content');
     if (!container) return;
+    const indicator = document.getElementById('step-indicator');
+    const title = document.getElementById('step-title');
+    if (indicator) indicator.textContent = 'Claim Submitted';
+    if (title) title.textContent = 'Claim en cours de validation';
     
     container.innerHTML = `
         <div class="max-w-2xl mx-auto text-center py-16 px-4">
