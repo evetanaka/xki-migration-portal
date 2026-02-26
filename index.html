@@ -182,8 +182,8 @@
         </section>
 
         <!-- Vote Modal -->
-        <div id="vote-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 hidden">
-            <div class="glass-panel w-full max-w-3xl m-4 p-8 max-h-[90vh] overflow-y-auto">
+        <div id="vote-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100] hidden">
+            <div class="glass-panel w-full max-w-5xl m-4 p-8 max-h-[85vh] overflow-y-auto">
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <span id="modal-proposal-number" class="text-[10px] uppercase tracking-widest text-gray-500"></span>
@@ -205,14 +205,14 @@
                 </div>
                 
                 <!-- Vote Options -->
-                <div id="vote-options" class="space-y-3 mb-6">
-                    <button onclick="selectVote('for')" data-vote="for" class="vote-btn w-full py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-green-900/20 hover:border-green-500/50 transition-all flex items-center justify-center gap-3">
-                        <i data-lucide="check" class="w-4 h-4"></i> Yes, I Support
+                <div id="vote-options" class="grid grid-cols-3 gap-3 mb-6">
+                    <button onclick="selectVote('for')" data-vote="for" class="vote-btn py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-green-900/20 hover:border-green-500/50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check" class="w-4 h-4"></i> Yes
                     </button>
-                    <button onclick="selectVote('against')" data-vote="against" class="vote-btn w-full py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-red-900/20 hover:border-red-500/50 transition-all flex items-center justify-center gap-3">
-                        <i data-lucide="x" class="w-4 h-4"></i> No, I Oppose
+                    <button onclick="selectVote('against')" data-vote="against" class="vote-btn py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-red-900/20 hover:border-red-500/50 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="x" class="w-4 h-4"></i> No
                     </button>
-                    <button onclick="selectVote('abstain')" data-vote="abstain" class="vote-btn w-full py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-900/20 hover:border-gray-500/50 transition-all flex items-center justify-center gap-3">
+                    <button onclick="selectVote('abstain')" data-vote="abstain" class="vote-btn py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-900/20 hover:border-gray-500/50 transition-all flex items-center justify-center gap-2">
                         <i data-lucide="minus" class="w-4 h-4"></i> Abstain
                     </button>
                 </div>
@@ -369,7 +369,7 @@
     </template>
 
     <!-- Logic -->
-    <script src="js/app.js?v=1772146208"></script>
+    <script src="js/app.js?v=1772146341"></script>
     <script>
         // Initialize Lucide icons after page load
         document.addEventListener('DOMContentLoaded', () => {
