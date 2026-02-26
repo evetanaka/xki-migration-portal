@@ -65,10 +65,15 @@
         </div>
         <div class="flex items-center gap-6">
             <span class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500">Migration Protocol v2.0</span>
-            <button id="wallet-status" onclick="handleHeaderConnect()" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black cursor-pointer flex items-center gap-2">
-                <i data-lucide="wallet" class="w-3 h-3"></i>
-                Connect Keplr
-            </button>
+            <div id="wallet-container" class="flex items-center gap-2">
+                <button id="wallet-connect-btn" onclick="handleHeaderConnect()" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black cursor-pointer flex items-center gap-2">
+                    <i data-lucide="wallet" class="w-3 h-3"></i>
+                    Connect Keplr
+                </button>
+                <button id="wallet-disconnect-btn" onclick="handleDisconnect()" class="hidden px-2 py-2 border border-white/10 text-gray-500 hover:text-red-400 hover:border-red-900 transition-all cursor-pointer" title="Disconnect">
+                    <i data-lucide="log-out" class="w-3 h-3"></i>
+                </button>
+            </div>
         </div>
     </nav>
 
@@ -348,7 +353,7 @@
     </template>
 
     <!-- Logic -->
-    <script src="js/app.js?v=1772145685"></script>
+    <script src="js/app.js?v=1772145996"></script>
     <script>
         // Initialize Lucide icons after page load
         document.addEventListener('DOMContentLoaded', () => {

@@ -151,138 +151,123 @@ function transitionToStep(nextStep) {
 
 // Update header wallet status
 function updateWalletStatus() {
-    const walletStatus = document.getElementById('wallet-status');
-    if (!walletStatus) return;
+    const connectBtn = document.getElementById('wallet-connect-btn');
+    const disconnectBtn = document.getElementById('wallet-disconnect-btn');
+    if (!connectBtn) return;
     
     if (state.kiAddress) {
-        walletStatus.textContent = truncateAddress(state.kiAddress);
-        walletStatus.className = "px-4 py-2 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10 cursor-default flex items-center gap-2";
-        walletStatus.onclick = null;
+        connectBtn.textContent = truncateAddress(state.kiAddress);
+        connectBtn.className = "px-4 py-2 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10 cursor-default flex items-center gap-2";
+        connectBtn.onclick = null;
+        if (disconnectBtn) {
+            disconnectBtn.classList.remove('hidden');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    } else {
+        connectBtn.innerHTML = '<i data-lucide="wallet" class="w-3 h-3"></i> Connect Keplr';
+        connectBtn.className = "px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black cursor-pointer flex items-center gap-2";
+        connectBtn.onclick = handleHeaderConnect;
+        if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 }
 
-// Header connect button
-async function handleHeaderConnect() {
-    const btn = document.getElementById('wallet-status');
-    if (btn) btn.textContent = 'Connecting...';
-    
+// Shared Keplr connection logic
+async function connectKeplr() {
     if (!window.keplr) {
         const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
         if (confirmInstall) {
             window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
         }
-        if (btn) {
-            btn.innerHTML = '<i data-lucide="wallet" class="w-3 h-3"></i> Connect Keplr';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
-        return;
+        return false;
     }
     
+    const chainId = 'kichain-2';
     try {
-        const chainId = 'kichain-2';
-        try {
-            await window.keplr.enable(chainId);
-        } catch (enableErr) {
-            await window.keplr.experimentalSuggestChain({
-                chainId: "kichain-2",
-                chainName: "Ki Chain",
-                rpc: "https://rpc-mainnet.blockchain.ki",
-                rest: "https://api-mainnet.blockchain.ki",
-                bip44: { coinType: 118 },
-                bech32Config: {
-                    bech32PrefixAccAddr: "ki",
-                    bech32PrefixAccPub: "kipub",
-                    bech32PrefixValAddr: "kivaloper",
-                    bech32PrefixValPub: "kivaloperpub",
-                    bech32PrefixConsAddr: "kivalcons",
-                    bech32PrefixConsPub: "kivalconspub"
-                },
-                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
-            });
-            await window.keplr.enable(chainId);
-        }
-        
-        const key = await window.keplr.getKey(chainId);
-        state.kiAddress = key.bech32Address;
-        updateWalletStatus();
-        
-        // If on step 1, also trigger the main flow
-        if (currentStep === 1) {
+        await window.keplr.enable(chainId);
+    } catch (enableErr) {
+        await window.keplr.experimentalSuggestChain({
+            chainId: "kichain-2",
+            chainName: "Ki Chain",
+            rpc: "https://rpc-mainnet.blockchain.ki",
+            rest: "https://api-mainnet.blockchain.ki",
+            bip44: { coinType: 118 },
+            bech32Config: {
+                bech32PrefixAccAddr: "ki",
+                bech32PrefixAccPub: "kipub",
+                bech32PrefixValAddr: "kivaloper",
+                bech32PrefixValPub: "kivaloperpub",
+                bech32PrefixConsAddr: "kivalcons",
+                bech32PrefixConsPub: "kivalconspub"
+            },
+            currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+            feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+            stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
+        });
+        await window.keplr.enable(chainId);
+    }
+    
+    const key = await window.keplr.getKey(chainId);
+    state.kiAddress = key.bech32Address;
+    localStorage.setItem('xki_wallet', state.kiAddress);
+    updateWalletStatus();
+    return true;
+}
+
+// Header connect button
+async function handleHeaderConnect() {
+    const btn = document.getElementById('wallet-connect-btn');
+    if (btn) btn.textContent = 'Connecting...';
+    
+    try {
+        const connected = await connectKeplr();
+        if (connected) {
             await checkEligibility();
+        } else {
+            updateWalletStatus();
         }
     } catch (e) {
         console.error('Keplr error:', e);
-        if (btn) {
-            btn.innerHTML = '<i data-lucide="wallet" class="w-3 h-3"></i> Connect Keplr';
-            if (typeof lucide !== 'undefined') lucide.createIcons();
-        }
+        alert('Error connecting to Keplr:\n' + e.message);
+        updateWalletStatus();
     }
+}
+
+// Disconnect wallet and reset flow
+function handleDisconnect() {
+    state.kiAddress = null;
+    state.ethAddress = '';
+    state.balance = null;
+    state.nonce = null;
+    state.message = null;
+    state.claimId = null;
+    
+    currentStep = 1;
+    isProcessing = false;
+    
+    localStorage.removeItem('xki_wallet');
+    updateWalletStatus();
+    renderStep(1);
 }
 
 // === Event Handlers (called from HTML onclick) ===
 
-// Step 1 -> 2: Connect Keplr
+// Step 1 -> 2: Connect Keplr (body button)
 async function handleConnect() {
-    console.log('handleConnect called');
     const btn = document.querySelector('#step-content button');
     if (btn) {
         btn.innerHTML = "Connecting...";
         btn.disabled = true;
     }
     
-    if (!window.keplr) {
-        // Show install prompt
-        const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
-        if (confirmInstall) {
-            window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
-        }
-        if (btn) {
+    try {
+        const connected = await connectKeplr();
+        if (connected) {
+            await checkEligibility();
+        } else if (btn) {
             btn.innerHTML = "Connect Keplr";
             btn.disabled = false;
         }
-        return;
-    }
-    
-    try {
-        const chainId = 'kichain-2';
-        
-        // First, try to enable the chain (may prompt user)
-        try {
-            await window.keplr.enable(chainId);
-        } catch (enableErr) {
-            console.log('Chain not configured, trying to suggest:', enableErr);
-            // Ki Chain might need to be added - suggest it
-            await window.keplr.experimentalSuggestChain({
-                chainId: "kichain-2",
-                chainName: "Ki Chain",
-                rpc: "https://rpc-mainnet.blockchain.ki",
-                rest: "https://api-mainnet.blockchain.ki",
-                bip44: { coinType: 118 },
-                bech32Config: {
-                    bech32PrefixAccAddr: "ki",
-                    bech32PrefixAccPub: "kipub",
-                    bech32PrefixValAddr: "kivaloper",
-                    bech32PrefixValPub: "kivaloperpub",
-                    bech32PrefixConsAddr: "kivalcons",
-                    bech32PrefixConsPub: "kivalconspub"
-                },
-                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
-            });
-            await window.keplr.enable(chainId);
-        }
-        
-        const key = await window.keplr.getKey(chainId);
-        state.kiAddress = key.bech32Address;
-        localStorage.setItem('xki_wallet', state.kiAddress);
-        console.log('Connected:', state.kiAddress);
-        updateWalletStatus();
-        
-        // Check eligibility
-        await checkEligibility();
     } catch (e) {
         console.error('Keplr error:', e);
         alert('Error connecting to Keplr:\n' + e.message);
@@ -801,46 +786,9 @@ function selectVote(choice) {
 
 // Connect wallet specifically for voting
 async function connectForVoting() {
-    if (!window.keplr) {
-        const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
-        if (confirmInstall) {
-            window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
-        }
-        return;
-    }
-
     try {
-        const chainId = 'kichain-2';
-        
-        try {
-            await window.keplr.enable(chainId);
-        } catch (enableErr) {
-            await window.keplr.experimentalSuggestChain({
-                chainId: "kichain-2",
-                chainName: "Ki Chain",
-                rpc: "https://rpc-mainnet.blockchain.ki",
-                rest: "https://api-mainnet.blockchain.ki",
-                bip44: { coinType: 118 },
-                bech32Config: {
-                    bech32PrefixAccAddr: "ki",
-                    bech32PrefixAccPub: "kipub",
-                    bech32PrefixValAddr: "kivaloper",
-                    bech32PrefixValPub: "kivaloperpub",
-                    bech32PrefixConsAddr: "kivalcons",
-                    bech32PrefixConsPub: "kivalconspub"
-                },
-                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
-                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
-            });
-            await window.keplr.enable(chainId);
-        }
-
-        const key = await window.keplr.getKey(chainId);
-        state.kiAddress = key.bech32Address;
-
-        // Reload modal with vote status
-        if (governanceState.currentProposal) {
+        const connected = await connectKeplr();
+        if (connected && governanceState.currentProposal) {
             openVoteModal(governanceState.currentProposal.id);
         }
     } catch (e) {
