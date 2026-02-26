@@ -126,10 +126,7 @@ function renderStep(step) {
         if (progressBar) progressBar.style.width = `${(step / 5) * 100}%`;
         
         // Update wallet status
-        if (step > 1 && state.kiAddress && walletStatus) {
-            walletStatus.textContent = truncateAddress(state.kiAddress);
-            walletStatus.className = "px-3 py-1 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10";
-        }
+        updateWalletStatus();
         
         stepContent.classList.remove('opacity-0');
         if (typeof lucide !== 'undefined') lucide.createIcons();
@@ -150,6 +147,78 @@ function transitionToStep(nextStep) {
         currentStep = nextStep;
         renderStep(nextStep);
     }, 800);
+}
+
+// Update header wallet status
+function updateWalletStatus() {
+    const walletStatus = document.getElementById('wallet-status');
+    if (!walletStatus) return;
+    
+    if (state.kiAddress) {
+        walletStatus.textContent = truncateAddress(state.kiAddress);
+        walletStatus.className = "px-4 py-2 border text-[10px] uppercase tracking-widest transition-all duration-500 border-green-900 text-green-500 bg-green-900/10 cursor-default flex items-center gap-2";
+        walletStatus.onclick = null;
+    }
+}
+
+// Header connect button
+async function handleHeaderConnect() {
+    const btn = document.getElementById('wallet-status');
+    if (btn) btn.textContent = 'Connecting...';
+    
+    if (!window.keplr) {
+        const confirmInstall = confirm('Keplr wallet extension is required.\n\nClick OK to open the Chrome Web Store and install Keplr.');
+        if (confirmInstall) {
+            window.open('https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap', '_blank');
+        }
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="wallet" class="w-3 h-3"></i> Connect Keplr';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        return;
+    }
+    
+    try {
+        const chainId = 'kichain-2';
+        try {
+            await window.keplr.enable(chainId);
+        } catch (enableErr) {
+            await window.keplr.experimentalSuggestChain({
+                chainId: "kichain-2",
+                chainName: "Ki Chain",
+                rpc: "https://rpc-mainnet.blockchain.ki",
+                rest: "https://api-mainnet.blockchain.ki",
+                bip44: { coinType: 118 },
+                bech32Config: {
+                    bech32PrefixAccAddr: "ki",
+                    bech32PrefixAccPub: "kipub",
+                    bech32PrefixValAddr: "kivaloper",
+                    bech32PrefixValPub: "kivaloperpub",
+                    bech32PrefixConsAddr: "kivalcons",
+                    bech32PrefixConsPub: "kivalconspub"
+                },
+                currencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                feeCurrencies: [{ coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }],
+                stakeCurrency: { coinDenom: "XKI", coinMinimalDenom: "uxki", coinDecimals: 6 }
+            });
+            await window.keplr.enable(chainId);
+        }
+        
+        const key = await window.keplr.getKey(chainId);
+        state.kiAddress = key.bech32Address;
+        updateWalletStatus();
+        
+        // If on step 1, also trigger the main flow
+        if (currentStep === 1) {
+            await checkEligibility();
+        }
+    } catch (e) {
+        console.error('Keplr error:', e);
+        if (btn) {
+            btn.innerHTML = '<i data-lucide="wallet" class="w-3 h-3"></i> Connect Keplr';
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    }
 }
 
 // === Event Handlers (called from HTML onclick) ===
@@ -210,6 +279,7 @@ async function handleConnect() {
         state.kiAddress = key.bech32Address;
         localStorage.setItem('xki_wallet', state.kiAddress);
         console.log('Connected:', state.kiAddress);
+        updateWalletStatus();
         
         // Check eligibility
         await checkEligibility();
