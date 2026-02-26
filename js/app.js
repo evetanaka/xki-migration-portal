@@ -49,8 +49,8 @@ async function loadStats() {
         const claimed = document.getElementById('stat-claimed');
         const countdown = document.getElementById('stat-countdown');
         
-        if (eligible) eligible.textContent = formatNumber(data.totalEligible);
-        if (claimed) claimed.textContent = formatNumber(data.totalClaimed);
+        if (eligible) eligible.textContent = formatXKI(data.totalEligible);
+        if (claimed) claimed.textContent = formatXKI(data.totalClaimed);
         if (countdown) countdown.textContent = formatCountdown(data.deadline);
     } catch (e) {
         console.log('Stats not available yet');
@@ -81,7 +81,7 @@ function renderStep(step) {
         if (step === 2) {
             const balanceDisplay = document.getElementById('balance-display');
             if (balanceDisplay && state.balance) {
-                balanceDisplay.innerHTML = `${formatNumber(state.balance)} <span class="text-lg text-gray-600">XKI</span>`;
+                balanceDisplay.innerHTML = `${formatXKI(state.balance)} <span class="text-lg text-gray-600">XKI</span>`;
             }
         }
         
