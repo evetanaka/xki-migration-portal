@@ -74,7 +74,12 @@ async function loadStats() {
         
         if (eligible) eligible.textContent = formatNumber(data.totalEligible);
         if (claimed) claimed.textContent = formatNumber(data.totalClaimed) + ' XKI';
-        if (countdown) countdown.textContent = formatCountdown(data.deadline);
+        if (countdown) {
+            // Live countdown updated every minute
+            const updateCountdown = () => countdown.textContent = formatCountdown(data.deadline);
+            updateCountdown();
+            setInterval(updateCountdown, 60000);
+        }
     } catch (e) {
         console.log('Stats not available yet');
     }
@@ -568,7 +573,7 @@ function formatXKI(uxki) {
 function formatCountdown(deadline) {
     if (!deadline) return '—';
     const now = Date.now();
-    const diff = new Date(deadline) - now;
+    const diff = new Date(deadline.replace(' ', 'T') + 'Z') - now;
     if (diff <= 0) return 'Ended';
     
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
