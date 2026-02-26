@@ -233,7 +233,8 @@ async function checkEligibility() {
             state.balance = data.balance;
             transitionToStep(2);
         } else if (data.claimed) {
-            alert('This address has already claimed.');
+            state.balance = data.balance || data.amount;
+            showClaimPending();
         } else {
             alert('This address is not eligible for migration.');
         }
@@ -413,6 +414,46 @@ async function checkStatus() {
         `;
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+}
+
+// Show claim pending/validation screen
+function showClaimPending() {
+    const container = document.getElementById('step-container');
+    if (!container) return;
+    
+    container.innerHTML = `
+        <div class="max-w-2xl mx-auto text-center py-16 px-4">
+            <div class="mb-6 text-sm uppercase tracking-[0.3em] text-gray-500 font-mono">Claim Submitted</div>
+            <h2 class="text-3xl md:text-4xl font-serif text-white mb-8">Claim en cours de validation</h2>
+            
+            <div class="border border-gray-800 p-8 mb-8">
+                <div class="flex items-center gap-3 mb-6 justify-center">
+                    <div class="w-3 h-3 bg-yellow-500 rounded-full animate-pulse"></div>
+                    <span class="text-yellow-500 text-sm uppercase tracking-widest font-mono">Validation en cours</span>
+                </div>
+                
+                <p class="text-gray-400 leading-relaxed mb-6">
+                    Votre demande de migration a bien été enregistrée et est en cours de traitement. 
+                    La validation peut prendre jusqu'à 48h.
+                </p>
+                
+                ${state.balance ? `
+                <div class="border-t border-gray-800 pt-6 mt-6">
+                    <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Montant</div>
+                    <div class="text-2xl font-serif text-white">${formatXKI(state.balance)} <span class="text-lg text-gray-600">XKI</span></div>
+                </div>` : ''}
+                
+                <div class="border-t border-gray-800 pt-6 mt-6">
+                    <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Adresse</div>
+                    <div class="text-sm font-mono text-gray-400">${state.kiAddress}</div>
+                </div>
+            </div>
+            
+            <p class="text-gray-600 text-sm font-mono">
+                Vous recevrez vos ERC-20 XKI une fois la validation complétée.
+            </p>
+        </div>
+    `;
 }
 
 // === Helpers ===
