@@ -114,7 +114,7 @@ Don't worry. When you click "Connect Keplr" on the website, it will automaticall
 It's the password **you chose** when importing your wallet into Keplr (Step 2, point 7). It is NOT your 24 words.
 
 ### I lost my 24 words — what can I do?
-Without your 24 words, it is unfortunately not possible to recover your wallet. Contact Ki Foundation support to explore your options.
+Without your 24 words, it is unfortunately **not possible** to recover your wallet. There is no workaround — this is a fundamental principle of blockchain: only the holder of the 24 words has access to the wallet.
 
 ### Can I do this from my phone?
 Keplr also exists as a mobile app (iOS and Android), but the experience is optimized for **desktop**. If using mobile, install the Keplr app from the App Store or Google Play.

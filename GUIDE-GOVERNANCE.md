@@ -112,7 +112,7 @@ Pas de panique. Quand vous cliquerez sur « Connect Keplr » sur le site, celui-
 C'est le mot de passe que **vous avez choisi** lors de l'import de votre portefeuille dans Keplr (étape 2, point 7). Ce n'est PAS vos 24 mots.
 
 ### J'ai perdu mes 24 mots, que faire ?
-Sans vos 24 mots, il n'est malheureusement pas possible de récupérer votre portefeuille. Contactez le support Ki Foundation pour explorer les options.
+Sans vos 24 mots, il n'est malheureusement **pas possible** de récupérer votre portefeuille. Il n'existe aucune solution de contournement — c'est le principe fondamental de la blockchain : seul le détenteur des 24 mots a accès au portefeuille.
 
 ### Puis-je faire ça depuis mon téléphone ?
 Keplr existe aussi en application mobile (iOS et Android), mais l'expérience est optimisée pour **ordinateur**. Si vous utilisez le mobile, installez l'app Keplr depuis l'App Store ou Google Play.
