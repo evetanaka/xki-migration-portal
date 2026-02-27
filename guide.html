@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Governance Guide — Ki Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Manrope:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .font-serif { font-family: 'Cinzel', serif; }
+        .font-sans { font-family: 'Manrope', sans-serif; }
+        .guide-content h2 { font-size: 1.35rem; font-weight: 600; color: white; margin: 2.5rem 0 1rem; font-family: 'Cinzel', serif; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.75rem; }
+        .guide-content h3 { font-size: 1.05rem; font-weight: 600; color: rgba(255,255,255,0.9); margin: 1.5rem 0 0.5rem; }
+        .guide-content p { margin: 0.75rem 0; line-height: 1.8; color: rgba(255,255,255,0.6); }
+        .guide-content strong { color: rgba(255,255,255,0.9); font-weight: 600; }
+        .guide-content ol { margin: 0.75rem 0 0.75rem 1.5rem; color: rgba(255,255,255,0.6); }
+        .guide-content ol li { margin: 0.5rem 0; line-height: 1.7; list-style: decimal; }
+        .guide-content ul { margin: 0.75rem 0 0.75rem 1.5rem; color: rgba(255,255,255,0.6); }
+        .guide-content ul li { margin: 0.5rem 0; line-height: 1.7; list-style: disc; }
+        .guide-content a { color: rgba(255,255,255,0.7); text-decoration: underline; text-underline-offset: 2px; }
+        .guide-content a:hover { color: white; }
+        .guide-content .callout-warning { background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.2); padding: 1rem 1.25rem; margin: 1rem 0; }
+        .guide-content .callout-info { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 1rem 1.25rem; margin: 1rem 0; }
+        .guide-content .callout-success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); padding: 1rem 1.25rem; margin: 1rem 0; }
+        .guide-content .step-number { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem; border: 1px solid rgba(255,255,255,0.2); font-family: 'Cinzel', serif; font-size: 0.85rem; color: white; margin-right: 0.75rem; flex-shrink: 0; }
+    </style>
+</head>
+<body class="bg-[#050505] text-[#E0E0E0] font-sans antialiased min-h-screen">
+
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 z-0 pointer-events-none opacity-20" style="background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 100px 100px;"></div>
+
+    <!-- Navigation -->
+    <nav class="relative z-10 w-full px-8 py-6 flex justify-between items-center border-b border-white/10">
+        <a href="/" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+            <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
+            <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400">Foundation</span>
+        </a>
+        <div class="flex items-center gap-4">
+            <!-- Language Toggle -->
+            <div class="flex items-center border border-white/20">
+                <button id="btn-en" onclick="setLang('en')" class="px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all bg-white text-black">EN</button>
+                <button id="btn-fr" onclick="setLang('fr')" class="px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all text-gray-400 hover:text-white">FR</button>
+            </div>
+            <a href="/" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all flex items-center gap-2">
+                <i data-lucide="arrow-left" class="w-3 h-3"></i>
+                Back to Portal
+            </a>
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="relative z-10 max-w-3xl mx-auto px-6 py-16">
+
+        <!-- EN Content -->
+        <div id="content-en" class="guide-content">
+            <div class="text-center mb-16">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">Governance Guide</p>
+                <h1 class="text-3xl md:text-4xl font-serif text-white mb-4">How to Vote on XKI Proposals</h1>
+                <p class="text-sm text-gray-500">A step-by-step guide for token holders — no technical knowledge required.</p>
+            </div>
+
+            <div class="callout-warning">
+                <p class="text-sm text-yellow-400/80 m-0"><strong>⚠️ Never share your 24 words</strong> with anyone. No team member will ever ask for them. You'll need a computer with Chrome, Firefox, or Edge. This process is completely free.</p>
+            </div>
+
+            <h2><span class="step-number">1</span> Install Keplr Wallet</h2>
+            <p>Keplr is a digital wallet that works as a <strong>browser extension</strong> — a small program that adds to Chrome. It's the standard wallet for Cosmos blockchains, including Ki Chain.</p>
+            <ol>
+                <li>Open <strong>Google Chrome</strong> on your computer</li>
+                <li>Go to <a href="https://www.keplr.app/get" target="_blank">keplr.app/get</a></li>
+                <li>Click <strong>"Chrome"</strong> (or Firefox / Edge)</li>
+                <li>Click <strong>"Add to Chrome"</strong> then <strong>"Add extension"</strong></li>
+                <li>A small Keplr icon ("K") will appear in the top right corner of your browser ✅</li>
+            </ol>
+            <div class="callout-info">
+                <p class="text-sm m-0">🔗 Direct links: <a href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap" target="_blank">Chrome</a> · <a href="https://addons.mozilla.org/en-US/firefox/addon/keplr/" target="_blank">Firefox</a> · <a href="https://microsoftedge.microsoft.com/addons/detail/keplr/ocodgmmffbkkeecmadcijjhkmeohinei" target="_blank">Edge</a></p>
+            </div>
+
+            <h2><span class="step-number">2</span> Import Your Wallet</h2>
+            <p>Now add your existing Ki Chain wallet using your 24-word recovery phrase.</p>
+            <ol>
+                <li>Click the <strong>Keplr icon</strong> ("K") in the top right corner</li>
+                <li>Choose <strong>"Import an existing wallet"</strong></li>
+                <li>Select <strong>"Use recovery phrase or private key"</strong></li>
+                <li>Enter your 24 words <strong>in the exact order</strong>, one word per field</li>
+                <li>Click <strong>"Next"</strong></li>
+                <li>Choose a <strong>name</strong> for your wallet and create a <strong>password</strong> — this password protects Keplr on your computer</li>
+                <li>Click <strong>"Save"</strong> ✅</li>
+            </ol>
+            <div class="callout-warning">
+                <p class="text-sm text-yellow-400/80 m-0">⚠️ Do this in a quiet place, alone, with no one looking at your screen.</p>
+            </div>
+
+            <h2><span class="step-number">3</span> Connect to the Portal</h2>
+            <ol>
+                <li>Go to <a href="https://claim.foundation.ki" target="_blank"><strong>claim.foundation.ki</strong></a></li>
+                <li>Click <strong>"Connect Keplr"</strong> in the top right corner</li>
+                <li>Keplr will pop up — click <strong>"Approve"</strong></li>
+                <li>If asked to add "Ki Chain", click <strong>"Approve"</strong> again</li>
+            </ol>
+            <div class="callout-success">
+                <p class="text-sm text-green-400/80 m-0">✅ The button turns green with your address — you're connected!</p>
+            </div>
+
+            <h2><span class="step-number">4</span> Cast Your Vote</h2>
+            <ol>
+                <li>Scroll down to the <strong>"Governance"</strong> section</li>
+                <li>Click on the proposal you want to vote on</li>
+                <li><strong>Read the description carefully</strong></li>
+                <li>You'll see your <strong>Voting Power</strong> (= your XKI balance)</li>
+                <li>Choose: <strong>Yes</strong> / <strong>No</strong> / <strong>Abstain</strong></li>
+                <li>Click <strong>"Sign & Submit Vote"</strong></li>
+                <li>Keplr pops up — click <strong>"Approve"</strong> ✅</li>
+            </ol>
+            <div class="callout-info">
+                <p class="text-sm m-0">ℹ️ <strong>Signing ≠ Paying.</strong> It simply proves you own the wallet. No tokens are moved, no fees charged.</p>
+            </div>
+
+            <h2>Frequently Asked Questions</h2>
+            <h3>Will my tokens move if I vote?</h3>
+            <p><strong>No.</strong> Voting does not move your tokens.</p>
+            <h3>Can I vote more than once?</h3>
+            <p><strong>No.</strong> One vote per address per proposal.</p>
+            <h3>I don't see Ki Chain in Keplr?</h3>
+            <p>The website will automatically offer to add it when you click "Connect Keplr".</p>
+            <h3>Keplr asks for a password — which one?</h3>
+            <p>The one <strong>you chose</strong> in Step 2 when importing your wallet. Not your 24 words.</p>
+            <h3>I lost my 24 words — what can I do?</h3>
+            <p>Without your 24 words, it is <strong>not possible</strong> to recover your wallet. There is no workaround — this is a fundamental principle of blockchain.</p>
+            <h3>Can I vote from my phone?</h3>
+            <p>Keplr exists as a mobile app (iOS / Android), but desktop is recommended for the best experience.</p>
+        </div>
+
+        <!-- FR Content -->
+        <div id="content-fr" class="guide-content hidden">
+            <div class="text-center mb-16">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">Guide de Gouvernance</p>
+                <h1 class="text-3xl md:text-4xl font-serif text-white mb-4">Comment Voter sur les Propositions XKI</h1>
+                <p class="text-sm text-gray-500">Un guide pas à pas pour les détenteurs de tokens — aucune connaissance technique requise.</p>
+            </div>
+
+            <div class="callout-warning">
+                <p class="text-sm text-yellow-400/80 m-0"><strong>⚠️ Ne partagez JAMAIS vos 24 mots</strong> avec qui que ce soit. Aucun membre de l'équipe ne vous les demandera. Vous aurez besoin d'un ordinateur avec Chrome, Firefox ou Edge. Ce processus est entièrement gratuit.</p>
+            </div>
+
+            <h2><span class="step-number">1</span> Installer Keplr Wallet</h2>
+            <p>Keplr est un portefeuille numérique sous forme d'<strong>extension de navigateur</strong> — un petit programme qui s'ajoute à Chrome. C'est le portefeuille standard pour les blockchains Cosmos, dont Ki Chain.</p>
+            <ol>
+                <li>Ouvrez <strong>Google Chrome</strong> sur votre ordinateur</li>
+                <li>Allez sur <a href="https://www.keplr.app/get" target="_blank">keplr.app/get</a></li>
+                <li>Cliquez sur <strong>« Chrome »</strong> (ou Firefox / Edge)</li>
+                <li>Cliquez <strong>« Ajouter à Chrome »</strong> puis <strong>« Ajouter l'extension »</strong></li>
+                <li>Une icône Keplr (« K ») apparaîtra en haut à droite de votre navigateur ✅</li>
+            </ol>
+            <div class="callout-info">
+                <p class="text-sm m-0">🔗 Liens directs : <a href="https://chrome.google.com/webstore/detail/keplr/dmkamcknogkgcdfhhbddcghachkejeap" target="_blank">Chrome</a> · <a href="https://addons.mozilla.org/en-US/firefox/addon/keplr/" target="_blank">Firefox</a> · <a href="https://microsoftedge.microsoft.com/addons/detail/keplr/ocodgmmffbkkeecmadcijjhkmeohinei" target="_blank">Edge</a></p>
+            </div>
+
+            <h2><span class="step-number">2</span> Importer Votre Portefeuille</h2>
+            <p>Ajoutez votre portefeuille Ki Chain existant en utilisant vos 24 mots de récupération.</p>
+            <ol>
+                <li>Cliquez sur l'<strong>icône Keplr</strong> (« K ») en haut à droite</li>
+                <li>Choisissez <strong>« Import an existing wallet »</strong></li>
+                <li>Sélectionnez <strong>« Use recovery phrase or private key »</strong></li>
+                <li>Entrez vos 24 mots <strong>dans l'ordre exact</strong>, un mot par case</li>
+                <li>Cliquez <strong>« Next »</strong></li>
+                <li>Choisissez un <strong>nom</strong> pour votre portefeuille et créez un <strong>mot de passe</strong> — ce mot de passe protège Keplr sur votre ordinateur</li>
+                <li>Cliquez <strong>« Save »</strong> ✅</li>
+            </ol>
+            <div class="callout-warning">
+                <p class="text-sm text-yellow-400/80 m-0">⚠️ Faites ça dans un endroit calme, seul(e), sans personne qui regarde votre écran.</p>
+            </div>
+
+            <h2><span class="step-number">3</span> Se Connecter au Portail</h2>
+            <ol>
+                <li>Allez sur <a href="https://claim.foundation.ki" target="_blank"><strong>claim.foundation.ki</strong></a></li>
+                <li>Cliquez sur <strong>« Connect Keplr »</strong> en haut à droite</li>
+                <li>Keplr s'ouvre — cliquez <strong>« Approve »</strong></li>
+                <li>Si on vous demande d'ajouter « Ki Chain », cliquez <strong>« Approve »</strong> à nouveau</li>
+            </ol>
+            <div class="callout-success">
+                <p class="text-sm text-green-400/80 m-0">✅ Le bouton devient vert avec votre adresse — vous êtes connecté(e) !</p>
+            </div>
+
+            <h2><span class="step-number">4</span> Voter</h2>
+            <ol>
+                <li>Descendez jusqu'à la section <strong>« Governance »</strong></li>
+                <li>Cliquez sur la proposition qui vous intéresse</li>
+                <li><strong>Lisez attentivement la description</strong></li>
+                <li>Vous verrez votre <strong>Voting Power</strong> (= vos XKI)</li>
+                <li>Choisissez : <strong>Yes</strong> / <strong>No</strong> / <strong>Abstain</strong></li>
+                <li>Cliquez <strong>« Sign & Submit Vote »</strong></li>
+                <li>Keplr s'ouvre — cliquez <strong>« Approve »</strong> ✅</li>
+            </ol>
+            <div class="callout-info">
+                <p class="text-sm m-0">ℹ️ <strong>Signer ≠ Payer.</strong> Cela prouve simplement que vous êtes le propriétaire. Aucun token ne bouge, aucun frais.</p>
+            </div>
+
+            <h2>Questions Fréquentes</h2>
+            <h3>Mes tokens bougent si je vote ?</h3>
+            <p><strong>Non.</strong> Voter ne déplace pas vos tokens.</p>
+            <h3>Je peux voter plusieurs fois ?</h3>
+            <p><strong>Non.</strong> Un vote par adresse par proposition.</p>
+            <h3>Ki Chain n'apparaît pas dans Keplr ?</h3>
+            <p>Le site proposera automatiquement de l'ajouter quand vous cliquerez « Connect Keplr ».</p>
+            <h3>Keplr me demande un mot de passe — lequel ?</h3>
+            <p>Celui que <strong>vous avez choisi</strong> à l'étape 2. Ce n'est PAS vos 24 mots.</p>
+            <h3>J'ai perdu mes 24 mots — que faire ?</h3>
+            <p>Sans vos 24 mots, il n'est <strong>pas possible</strong> de récupérer votre portefeuille. Il n'existe aucune solution de contournement — c'est le principe fondamental de la blockchain.</p>
+            <h3>Puis-je voter depuis mon téléphone ?</h3>
+            <p>Keplr existe en app mobile (iOS / Android), mais l'ordinateur est recommandé pour la meilleure expérience.</p>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-white/5 py-6 text-center">
+        <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2026 Ki Chain Foundation — Architecture of Value</p>
+    </footer>
+
+    <script>
+        function setLang(lang) {
+            document.getElementById('content-en').classList.toggle('hidden', lang !== 'en');
+            document.getElementById('content-fr').classList.toggle('hidden', lang !== 'fr');
+            
+            const btnEn = document.getElementById('btn-en');
+            const btnFr = document.getElementById('btn-fr');
+            
+            if (lang === 'en') {
+                btnEn.className = 'px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all bg-white text-black';
+                btnFr.className = 'px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all text-gray-400 hover:text-white';
+            } else {
+                btnFr.className = 'px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all bg-white text-black';
+                btnEn.className = 'px-3 py-1.5 text-[10px] uppercase tracking-widest transition-all text-gray-400 hover:text-white';
+            }
+            
+            history.replaceState(null, '', `?lang=${lang}`);
+        }
+
+        // Auto-detect language from URL or browser
+        const params = new URLSearchParams(window.location.search);
+        const lang = params.get('lang') || (navigator.language.startsWith('fr') ? 'fr' : 'en');
+        setLang(lang);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+</html>

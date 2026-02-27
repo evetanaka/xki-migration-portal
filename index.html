@@ -80,7 +80,10 @@
             <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400">Foundation</span>
         </div>
         <div class="flex items-center gap-6">
-            <span class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500">Migration Protocol v2.0</span>
+            <a href="/guide.html" class="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
+                <i data-lucide="book-open" class="w-3 h-3"></i>
+                Guide
+            </a>
             <div id="wallet-container" class="flex items-center gap-2">
                 <button id="wallet-connect-btn" onclick="handleHeaderConnect()" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black cursor-pointer flex items-center gap-2">
                     <i data-lucide="wallet" class="w-3 h-3"></i>
@@ -167,7 +170,10 @@
                         <i data-lucide="vote" class="w-5 h-5 text-white"></i>
                         <h2 class="text-xl font-serif text-white">Governance</h2>
                     </div>
-                    <span class="text-[10px] uppercase tracking-[0.2em] text-gray-500">Community Proposals</span>
+                    <a href="/guide.html" class="text-[10px] uppercase tracking-[0.2em] text-gray-500 hover:text-white transition-colors flex items-center gap-2">
+                        <i data-lucide="book-open" class="w-3 h-3"></i>
+                        How to vote
+                    </a>
                 </div>
                 
                 <!-- Proposals List -->
@@ -370,7 +376,7 @@
     </template>
 
     <!-- Logic -->
-    <script src="js/app.js?v=1772148012"></script>
+    <script src="js/app.js?v=1772158217"></script>
     <script>
         // Initialize Lucide icons after page load
         document.addEventListener('DOMContentLoaded', () => {
