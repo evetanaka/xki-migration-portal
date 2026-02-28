@@ -292,9 +292,15 @@ async function checkEligibility() {
         if (data.claimed) {
             state.balance = data.balance || data.amount;
             showClaimCompleted();
+        } else if (data.approved) {
+            state.balance = data.balance || data.amount;
+            showClaimApproved();
         } else if (data.pending) {
             state.balance = data.balance || data.amount;
             showClaimPending();
+        } else if (data.rejected) {
+            state.balance = data.balance || data.amount;
+            showClaimRejected();
         } else if (data.eligible) {
             state.balance = data.balance;
             transitionToStep(2);
@@ -553,6 +559,79 @@ function showClaimPending() {
             <p class="text-gray-600 text-sm font-mono mt-8">
                 Vous recevrez vos ERC-20 XKI une fois la validation complétée.
             </p>
+        </div>
+    `;
+}
+
+// Show claim approved (distribution in progress)
+function showClaimApproved() {
+    const container = document.getElementById('step-content');
+    if (!container) return;
+    const indicator = document.getElementById('step-indicator');
+    const title = document.getElementById('step-title');
+    if (indicator) indicator.textContent = 'Claim Approved';
+    if (title) title.textContent = 'Migration approuvée';
+    
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center text-center h-full py-8 px-4">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-green-500 text-sm uppercase tracking-widest font-mono">Approuvé</span>
+            </div>
+            
+            <p class="text-gray-400 leading-relaxed mb-8 max-w-md">
+                Votre demande de migration a été approuvée. La distribution de vos tokens ERC-20 XKI est en cours de traitement.
+            </p>
+            
+            ${state.balance ? `
+            <div class="border-t border-gray-800 pt-6 mt-2 mb-6 w-full max-w-sm">
+                <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Montant</div>
+                <div class="text-2xl font-serif text-white">${formatXKI(state.balance)} <span class="text-lg text-gray-600">XKI</span></div>
+            </div>` : ''}
+            
+            <div class="border-t border-gray-800 pt-6 w-full max-w-sm">
+                <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Adresse</div>
+                <div class="text-sm font-mono text-gray-400">${state.kiAddress}</div>
+            </div>
+            
+            <p class="text-gray-600 text-sm font-mono mt-8">
+                Vous recevrez vos ERC-20 XKI sous peu.
+            </p>
+        </div>
+    `;
+}
+
+// Show claim rejected
+function showClaimRejected() {
+    const container = document.getElementById('step-content');
+    if (!container) return;
+    const indicator = document.getElementById('step-indicator');
+    const title = document.getElementById('step-title');
+    if (indicator) indicator.textContent = 'Claim Rejected';
+    if (title) title.textContent = 'Migration refusée';
+    
+    container.innerHTML = `
+        <div class="flex flex-col items-center justify-center text-center h-full py-8 px-4">
+            <div class="flex items-center gap-3 mb-8">
+                <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                <span class="text-red-500 text-sm uppercase tracking-widest font-mono">Refusé</span>
+            </div>
+            
+            <p class="text-gray-400 leading-relaxed mb-8 max-w-md">
+                Votre demande de migration a été examinée et n'a pas pu être validée. 
+                Si vous pensez qu'il s'agit d'une erreur, veuillez contacter le support.
+            </p>
+            
+            ${state.balance ? `
+            <div class="border-t border-gray-800 pt-6 mt-2 mb-6 w-full max-w-sm">
+                <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Montant demandé</div>
+                <div class="text-2xl font-serif text-white">${formatXKI(state.balance)} <span class="text-lg text-gray-600">XKI</span></div>
+            </div>` : ''}
+            
+            <div class="border-t border-gray-800 pt-6 w-full max-w-sm">
+                <div class="text-xs uppercase tracking-widest text-gray-600 mb-2">Adresse</div>
+                <div class="text-sm font-mono text-gray-400">${state.kiAddress}</div>
+            </div>
         </div>
     `;
 }
