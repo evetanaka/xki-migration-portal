@@ -278,6 +278,43 @@
                     Not Eligible to Vote
                 </div>
             </div>
+
+            <!-- Vote Results Section -->
+            <div id="vote-results" class="mt-8 border-t border-white/10 pt-6">
+                <h4 class="text-sm font-serif text-white mb-4">Vote Results</h4>
+                
+                <!-- Vote Stats Grid -->
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                    <div class="text-center p-4 bg-green-900/20 border border-green-500/30">
+                        <p class="text-[10px] uppercase tracking-widest text-green-400 mb-2">For</p>
+                        <p id="modal-votes-for" class="text-xl font-serif text-green-400">0</p>
+                        <p id="modal-votes-for-pct" class="text-xs text-green-400/70 mt-1">0%</p>
+                    </div>
+                    <div class="text-center p-4 bg-red-900/20 border border-red-500/30">
+                        <p class="text-[10px] uppercase tracking-widest text-red-400 mb-2">Against</p>
+                        <p id="modal-votes-against" class="text-xl font-serif text-red-400">0</p>
+                        <p id="modal-votes-against-pct" class="text-xs text-red-400/70 mt-1">0%</p>
+                    </div>
+                    <div class="text-center p-4 bg-gray-900/50 border border-gray-500/30">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-2">Abstain</p>
+                        <p id="modal-votes-abstain" class="text-xl font-serif text-gray-400">0</p>
+                        <p id="modal-votes-abstain-pct" class="text-xs text-gray-400/70 mt-1">0%</p>
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-xs text-gray-500 mb-6">
+                    <span>Total Voters: <span id="modal-voter-count" class="text-white">0</span></span>
+                    <span>Total Power: <span id="modal-total-power" class="text-white">0 XKI</span></span>
+                </div>
+
+                <!-- Voters List -->
+                <div>
+                    <h4 class="text-sm font-serif text-white mb-3">All Votes</h4>
+                    <div id="modal-votes-list" class="space-y-1 max-h-64 overflow-y-auto">
+                        <p class="text-gray-600 text-sm text-center py-4">Loading...</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

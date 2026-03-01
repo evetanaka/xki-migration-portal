@@ -829,9 +829,67 @@ async function openVoteModal(proposalId) {
         document.getElementById('btn-submit-vote').onclick = connectForVoting;
     }
 
+    // Load detailed vote results
+    loadVoteResults(proposalId);
+
     // Show modal
     document.getElementById('vote-modal').classList.remove('hidden');
     if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Load and display detailed vote results
+async function loadVoteResults(proposalId) {
+    const votesList = document.getElementById('modal-votes-list');
+    if (votesList) votesList.innerHTML = '<p class="text-gray-600 text-sm text-center py-4">Loading...</p>';
+
+    try {
+        const res = await fetch(`${API_BASE}/governance/proposals/${proposalId}/votes`);
+        const data = await res.json();
+        const proposal = data.proposal;
+        const votes = data.votes || [];
+
+        // Calculate totals with BigInt
+        const totalFor = BigInt(proposal.votesFor || '0');
+        const totalAgainst = BigInt(proposal.votesAgainst || '0');
+        const totalAbstain = BigInt(proposal.votesAbstain || '0');
+        const totalPower = totalFor + totalAgainst + totalAbstain;
+
+        const forPct = totalPower > 0n ? Number((totalFor * 100n) / totalPower) : 0;
+        const againstPct = totalPower > 0n ? Number((totalAgainst * 100n) / totalPower) : 0;
+        const abstainPct = totalPower > 0n ? Number((totalAbstain * 100n) / totalPower) : 0;
+
+        // Update stat boxes
+        document.getElementById('modal-votes-for').textContent = formatXKI(proposal.votesFor);
+        document.getElementById('modal-votes-for-pct').textContent = forPct + '%';
+        document.getElementById('modal-votes-against').textContent = formatXKI(proposal.votesAgainst);
+        document.getElementById('modal-votes-against-pct').textContent = againstPct + '%';
+        document.getElementById('modal-votes-abstain').textContent = formatXKI(proposal.votesAbstain);
+        document.getElementById('modal-votes-abstain-pct').textContent = abstainPct + '%';
+
+        document.getElementById('modal-voter-count').textContent = proposal.voterCount || votes.length;
+        document.getElementById('modal-total-power').textContent = formatXKI(totalPower.toString()) + ' XKI';
+
+        // Render voters list
+        if (votes.length === 0) {
+            votesList.innerHTML = '<p class="text-gray-600 text-sm text-center py-4">No votes yet</p>';
+        } else {
+            const voteColors = {
+                'for': 'text-green-400',
+                'against': 'text-red-400',
+                'abstain': 'text-gray-400'
+            };
+            votesList.innerHTML = votes.map(v => `
+                <div class="flex justify-between items-center py-2 px-3 border-b border-white/5 hover:bg-white/5 transition-colors">
+                    <span class="font-mono text-xs text-gray-400" title="${escapeHtml(v.kiAddress)}">${truncateAddress(v.kiAddress)}</span>
+                    <span class="${voteColors[v.voteChoice] || 'text-gray-400'} text-xs uppercase tracking-wider font-bold">${v.voteChoice}</span>
+                    <span class="text-xs text-gray-500">${formatXKI(v.votingPower)} XKI</span>
+                </div>
+            `).join('');
+        }
+    } catch (e) {
+        console.error('Error loading vote results:', e);
+        if (votesList) votesList.innerHTML = '<p class="text-red-400/60 text-sm text-center py-4">Could not load vote details</p>';
+    }
 }
 
 // Close vote modal
