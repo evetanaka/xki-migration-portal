@@ -54,6 +54,12 @@ function setupEventListeners() {
     elements.filterStatus.addEventListener('change', loadClaims);
     elements.btnUpdate.addEventListener('click', updateClaim);
     
+    // Delete claim button
+    const btnDeleteClaim = document.getElementById('btn-delete-claim');
+    if (btnDeleteClaim) {
+        btnDeleteClaim.addEventListener('click', deleteClaim);
+    }
+    
     // Import button
     const btnImport = document.getElementById('btn-import');
     if (btnImport) {
@@ -416,6 +422,38 @@ async function updateClaim() {
         }
     } catch (e) {
         alert('Error updating claim');
+    }
+}
+
+// Delete Claim
+async function deleteClaim() {
+    if (!currentClaim) return;
+    
+    const confirmed = confirm(
+        `⚠️ Delete claim #${currentClaim.id}?\n\n` +
+        `Ki Address: ${currentClaim.kiAddress}\n` +
+        `Amount: ${(currentClaim.amount / 1000000).toLocaleString()} XKI\n\n` +
+        `This will allow the user to submit a new claim.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+        const res = await apiCall(`/admin/claims/${currentClaim.id}`, {
+            method: 'DELETE'
+        });
+        
+        if (res.ok) {
+            alert('Claim deleted successfully. User can now re-claim.');
+            closeModal();
+            loadClaims();
+            loadStats();
+        } else {
+            const err = await res.json();
+            alert('Error: ' + (err.error || 'Unknown error'));
+        }
+    } catch (e) {
+        alert('Error deleting claim');
     }
 }
 
