@@ -53,11 +53,23 @@ function setupEventListeners() {
     elements.btnExport.addEventListener('click', exportCSV);
     elements.filterStatus.addEventListener('change', loadClaims);
     elements.btnUpdate.addEventListener('click', updateClaim);
+
+    // Validate all signatures button
+    const btnValidateAll = document.getElementById('btn-validate-all');
+    if (btnValidateAll) {
+        btnValidateAll.addEventListener('click', validateAllSignatures);
+    }
     
     // Delete claim button
     const btnDeleteClaim = document.getElementById('btn-delete-claim');
     if (btnDeleteClaim) {
         btnDeleteClaim.addEventListener('click', deleteClaim);
+    }
+
+    // Verify single claim button
+    const btnVerifySingle = document.getElementById('btn-verify-single');
+    if (btnVerifySingle) {
+        btnVerifySingle.addEventListener('click', verifySingleClaim);
     }
     
     // Import button
@@ -380,6 +392,13 @@ async function viewClaim(id) {
         document.getElementById('update-txhash').value = claim.txHash || '';
         document.getElementById('update-notes').value = claim.adminNotes || '';
         
+        // Reset verify result
+        const verifyResult = document.getElementById('verify-result');
+        if (verifyResult) {
+            verifyResult.classList.add('hidden');
+            verifyResult.textContent = '';
+        }
+        
         openModal();
         
         // Re-init lucide icons in modal
@@ -517,6 +536,86 @@ async function loadImportStats() {
     } catch (e) {
         console.error('Error loading import stats:', e);
     }
+}
+
+// Verify single claim signature
+async function verifySingleClaim() {
+    if (!currentClaim) return;
+    
+    const btn = document.getElementById('btn-verify-single');
+    const resultEl = document.getElementById('verify-result');
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Verifying...';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    try {
+        const res = await apiCall(`/admin/claims/${currentClaim.id}/verify`, {
+            method: 'POST'
+        });
+        const data = await res.json();
+        
+        resultEl.classList.remove('hidden');
+        if (data.valid) {
+            resultEl.className = 'mb-3 text-sm px-3 py-2 border border-emerald-500/30 text-emerald-400 bg-emerald-900/20';
+            resultEl.textContent = '✅ ' + data.reason;
+        } else {
+            resultEl.className = 'mb-3 text-sm px-3 py-2 border border-red-500/30 text-red-400 bg-red-900/20';
+            resultEl.textContent = '❌ ' + data.reason;
+        }
+    } catch (e) {
+        resultEl.classList.remove('hidden');
+        resultEl.className = 'mb-3 text-sm px-3 py-2 border border-red-500/30 text-red-400 bg-red-900/20';
+        resultEl.textContent = '❌ Error: ' + e.message;
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="shield-check" class="w-3 h-3"></i> Verify Signature';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+// Validate All Signatures
+async function validateAllSignatures() {
+    const btn = document.getElementById('btn-validate-all');
+    
+    if (!confirm('This will verify all pending claims\' signatures and approve/reject them.\n\nContinue?')) {
+        return;
+    }
+    
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Validating...';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    try {
+        const res = await apiCall('/admin/validate-all', {
+            method: 'POST'
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+            let msg = `Validation complete!\n\n✅ Approved: ${data.approved}\n❌ Rejected: ${data.rejected}\n📋 Total processed: ${data.total}`;
+            
+            if (data.rejected > 0) {
+                msg += '\n\nRejected claims:';
+                data.details.filter(d => !d.valid).forEach(d => {
+                    msg += `\n• #${d.id} (${truncate(d.kiAddress, 16)}): ${d.reason}`;
+                });
+            }
+            
+            alert(msg);
+            loadClaims();
+            loadStats();
+        } else {
+            alert('Error: ' + (data.error || 'Unknown error'));
+        }
+    } catch (e) {
+        alert('Error validating claims: ' + e.message);
+    }
+    
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="shield-check" class="w-3 h-3"></i> Validate All Signatures';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // Export CSV
