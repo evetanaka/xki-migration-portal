@@ -91,10 +91,10 @@ function setupEventListeners() {
     const initialDistInput = document.getElementById('update-initial-dist');
     if (initialDistInput) {
         initialDistInput.addEventListener('input', () => {
-            const val = parseInt(initialDistInput.value) || 0;
+            const val = parseFloat(initialDistInput.value) || 0;
             const preview = document.getElementById('slash-preview');
             if (val > 0) {
-                preview.textContent = `Slash: ${formatXKI(Math.floor(val / 2))} XKI (50% of ${formatXKI(val)} XKI)`;
+                preview.textContent = `Slash: ${formatNumber(val / 2)} XKI (50% of ${formatNumber(val)} XKI)`;
             } else {
                 preview.textContent = '';
             }
@@ -443,7 +443,7 @@ async function viewClaim(id) {
         isTeamCheckbox.checked = claim.isTeam || false;
         if (claim.isTeam) {
             teamFields.classList.remove('hidden');
-            initialDistInput.value = claim.initialAmountDistributed || '';
+            initialDistInput.value = claim.initialAmountDistributed ? (claim.initialAmountDistributed / 1000000) : '';
             if (claim.slashedAmount) {
                 slashPreview.textContent = `Slashed: ${formatXKI(claim.slashedAmount)} XKI | Original: ${formatXKI(claim.originalAmount)} XKI`;
             }
@@ -493,7 +493,7 @@ async function updateClaim() {
     
     const payload = { status, txHash, adminNotes, isTeam };
     if (isTeam && initialDist) {
-        payload.initialAmountDistributed = parseInt(initialDist);
+        payload.initialAmountDistributed = Math.round(parseFloat(initialDist) * 1000000);
     }
     
     try {
@@ -655,7 +655,7 @@ async function markTeamWallets() {
         }
         wallets.push({
             kiAddress: parts[0],
-            initialAmountDistributed: parseInt(parts[1])
+            initialAmountDistributed: Math.round(parseFloat(parts[1]) * 1000000)
         });
     }
 

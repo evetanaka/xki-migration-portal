@@ -235,8 +235,8 @@
                 </header>
 
                 <div class="glass-panel p-6">
-                    <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">Paste wallets (one per line): kiAddress, initialAmountDistributed (in uXKI)</label>
-                    <textarea id="team-wallets-input" rows="6" class="w-full bg-transparent border border-white/20 p-3 text-sm text-white font-mono placeholder-gray-600 focus:outline-none focus:border-white/40 transition-colors" placeholder="ki1abc123..., 5000000000&#10;ki1def456..., 10000000000"></textarea>
+                    <label class="text-[10px] uppercase tracking-widest text-gray-400 mb-2 block">Paste wallets (one per line): kiAddress, initialAmountDistributed (in XKI)</label>
+                    <textarea id="team-wallets-input" rows="6" class="w-full bg-transparent border border-white/20 p-3 text-sm text-white font-mono placeholder-gray-600 focus:outline-none focus:border-white/40 transition-colors" placeholder="ki1abc123..., 5000&#10;ki1def456..., 10000"></textarea>
                     <div class="flex items-center gap-4 mt-4">
                         <button id="btn-mark-team" class="px-6 py-3 border border-amber-500/40 text-amber-400 text-[10px] uppercase tracking-widest hover:bg-amber-500 hover:text-black transition-all flex items-center gap-2">
                             <i data-lucide="users" class="w-3 h-3"></i>
@@ -379,8 +379,8 @@
                                 </label>
                             </div>
                             <div id="team-fields" class="hidden space-y-2">
-                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Initial Amount Distributed (uXKI)</label>
-                                <input type="number" id="update-initial-dist" placeholder="e.g. 5000000000"
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Initial Amount Distributed (XKI)</label>
+                                <input type="number" id="update-initial-dist" placeholder="e.g. 5000"
                                     class="w-full bg-transparent border border-white/10 py-2 px-3 text-sm text-white placeholder-gray-700 focus:outline-none focus:border-white/30 transition-colors">
                                 <div id="slash-preview" class="text-xs text-amber-400/70"></div>
                             </div>
@@ -544,7 +544,7 @@
     </footer>
 
     <!-- Logic -->
-    <script src="/admin/admin.js?v=20260403"></script>
+    <script src="/admin/admin.js?v=20260403b"></script>
     <script>
         // Initialize Lucide icons after page load
         document.addEventListener('DOMContentLoaded', () => {
