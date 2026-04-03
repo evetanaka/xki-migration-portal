@@ -59,6 +59,47 @@ function setupEventListeners() {
     if (btnValidateAll) {
         btnValidateAll.addEventListener('click', validateAllSignatures);
     }
+
+    // Search
+    const btnSearch = document.getElementById('btn-search');
+    const btnClearSearch = document.getElementById('btn-clear-search');
+    const searchInput = document.getElementById('search-input');
+    if (btnSearch) btnSearch.addEventListener('click', searchClaims);
+    if (btnClearSearch) btnClearSearch.addEventListener('click', clearSearch);
+    if (searchInput) searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') searchClaims();
+    });
+
+    // Mark team wallets
+    const btnMarkTeam = document.getElementById('btn-mark-team');
+    if (btnMarkTeam) btnMarkTeam.addEventListener('click', markTeamWallets);
+
+    // Team toggle in modal
+    const isTeamCheckbox = document.getElementById('update-is-team');
+    if (isTeamCheckbox) {
+        isTeamCheckbox.addEventListener('change', () => {
+            const teamFields = document.getElementById('team-fields');
+            if (isTeamCheckbox.checked) {
+                teamFields.classList.remove('hidden');
+            } else {
+                teamFields.classList.add('hidden');
+            }
+        });
+    }
+
+    // Slash preview
+    const initialDistInput = document.getElementById('update-initial-dist');
+    if (initialDistInput) {
+        initialDistInput.addEventListener('input', () => {
+            const val = parseInt(initialDistInput.value) || 0;
+            const preview = document.getElementById('slash-preview');
+            if (val > 0) {
+                preview.textContent = `Slash: ${formatXKI(Math.floor(val / 2))} XKI (50% of ${formatXKI(val)} XKI)`;
+            } else {
+                preview.textContent = '';
+            }
+        });
+    }
     
     // Delete claim button
     const btnDeleteClaim = document.getElementById('btn-delete-claim');
@@ -347,6 +388,7 @@ function renderClaims(claims) {
             <td class="py-4 px-6 text-sm text-white font-medium">${formatXKI(claim.amount)} XKI</td>
             <td class="py-4 px-6">
                 <span class="text-[10px] uppercase tracking-widest font-bold ${getStatusClass(claim.status)}">${claim.status}</span>
+                ${claim.isTeam ? '<span class="ml-2 text-[9px] uppercase tracking-widest font-bold text-amber-400 border border-amber-500/30 px-1.5 py-0.5">TEAM</span>' : ''}
             </td>
             <td class="py-4 px-6 text-xs text-gray-500">${formatDate(claim.createdAt)}</td>
             <td class="py-4 px-6">
@@ -391,7 +433,26 @@ async function viewClaim(id) {
         document.getElementById('update-status').value = claim.status;
         document.getElementById('update-txhash').value = claim.txHash || '';
         document.getElementById('update-notes').value = claim.adminNotes || '';
+
+        // Team fields
+        const isTeamCheckbox = document.getElementById('update-is-team');
+        const teamFields = document.getElementById('team-fields');
+        const initialDistInput = document.getElementById('update-initial-dist');
+        const slashPreview = document.getElementById('slash-preview');
         
+        isTeamCheckbox.checked = claim.isTeam || false;
+        if (claim.isTeam) {
+            teamFields.classList.remove('hidden');
+            initialDistInput.value = claim.initialAmountDistributed || '';
+            if (claim.slashedAmount) {
+                slashPreview.textContent = `Slashed: ${formatXKI(claim.slashedAmount)} XKI | Original: ${formatXKI(claim.originalAmount)} XKI`;
+            }
+        } else {
+            teamFields.classList.add('hidden');
+            initialDistInput.value = '';
+            slashPreview.textContent = '';
+        }
+
         // Reset verify result
         const verifyResult = document.getElementById('verify-result');
         if (verifyResult) {
@@ -417,17 +478,29 @@ async function updateClaim() {
     const status = document.getElementById('update-status').value;
     const txHash = document.getElementById('update-txhash').value.trim();
     const adminNotes = document.getElementById('update-notes').value.trim();
+    const isTeam = document.getElementById('update-is-team').checked;
+    const initialDist = document.getElementById('update-initial-dist').value.trim();
     
     if (status === 'completed' && !txHash) {
         alert('TX Hash is required for completed claims');
         return;
+    }
+
+    if (isTeam && !initialDist) {
+        alert('Initial Amount Distributed is required for team wallets');
+        return;
+    }
+    
+    const payload = { status, txHash, adminNotes, isTeam };
+    if (isTeam && initialDist) {
+        payload.initialAmountDistributed = parseInt(initialDist);
     }
     
     try {
         const res = await apiCall(`/admin/claims/${currentClaim.id}`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ status, txHash, adminNotes })
+            body: JSON.stringify(payload)
         });
         
         if (res.ok) {
@@ -536,6 +609,95 @@ async function loadImportStats() {
     } catch (e) {
         console.error('Error loading import stats:', e);
     }
+}
+
+// Search claims
+async function searchClaims() {
+    const q = document.getElementById('search-input').value.trim();
+    if (q.length < 3) {
+        alert('Enter at least 3 characters to search');
+        return;
+    }
+
+    try {
+        const res = await apiCall(`/admin/claims/search?q=${encodeURIComponent(q)}`);
+        const claims = await res.json();
+        renderClaims(claims);
+        document.getElementById('btn-clear-search').classList.remove('hidden');
+        updateTimestamp();
+    } catch (e) {
+        alert('Search error: ' + e.message);
+    }
+}
+
+function clearSearch() {
+    document.getElementById('search-input').value = '';
+    document.getElementById('btn-clear-search').classList.add('hidden');
+    loadClaims();
+}
+
+// Mark team wallets (batch)
+async function markTeamWallets() {
+    const input = document.getElementById('team-wallets-input').value.trim();
+    if (!input) {
+        alert('Please paste wallet addresses');
+        return;
+    }
+
+    const lines = input.split('\n').filter(l => l.trim());
+    const wallets = [];
+
+    for (const line of lines) {
+        const parts = line.split(',').map(s => s.trim());
+        if (parts.length < 2) {
+            alert(`Invalid line: "${line}"\nExpected format: kiAddress, initialAmountDistributed`);
+            return;
+        }
+        wallets.push({
+            kiAddress: parts[0],
+            initialAmountDistributed: parseInt(parts[1])
+        });
+    }
+
+    if (!confirm(`Mark ${wallets.length} wallet(s) as team and slash 50% of their initial distribution?\n\nThis will reduce their claim amounts.`)) {
+        return;
+    }
+
+    const btn = document.getElementById('btn-mark-team');
+    const resultEl = document.getElementById('team-result');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader" class="w-3 h-3 animate-spin"></i> Processing...';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+
+    try {
+        const res = await apiCall('/admin/claims/mark-team', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ wallets })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            resultEl.className = 'text-sm text-emerald-400';
+            resultEl.textContent = `✅ Marked: ${data.marked} | Skipped: ${data.skipped} | Not found: ${data.notFound}`;
+            resultEl.classList.remove('hidden');
+            loadClaims();
+            loadStats();
+        } else {
+            resultEl.className = 'text-sm text-red-400';
+            resultEl.textContent = '❌ ' + (data.error || 'Unknown error');
+            resultEl.classList.remove('hidden');
+        }
+    } catch (e) {
+        resultEl.className = 'text-sm text-red-400';
+        resultEl.textContent = '❌ Error: ' + e.message;
+        resultEl.classList.remove('hidden');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i data-lucide="users" class="w-3 h-3"></i> Mark as Team & Slash 50%';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
 
 // Verify single claim signature
