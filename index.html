@@ -3,212 +3,1120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ki Foundation</title>
+    <title>Ki Foundation — Own the Infrastructure</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Manrope:wght@200;300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
+        :root {
+            --bg: #050505;
+            --surface: #0a0a0a;
+            --border: rgba(255,255,255,0.08);
+            --text: #E0E0E0;
+            --muted: #666;
+            --accent: #fff;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         .font-serif { font-family: 'Cinzel', serif; }
         .font-sans { font-family: 'Manrope', sans-serif; }
 
-        .fade-in { animation: fadeIn 0.8s ease-out forwards; opacity: 0; }
-        .fade-in-delay-1 { animation-delay: 0.2s; }
-        .fade-in-delay-2 { animation-delay: 0.4s; }
-        .fade-in-delay-3 { animation-delay: 0.6s; }
-        .fade-in-delay-4 { animation-delay: 0.8s; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* Smooth scroll */
+        html { scroll-behavior: smooth; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        /* Parallax sections */
+        .parallax-section {
+            transform: translateY(40px);
+            opacity: 0;
+            transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
+        }
+        .parallax-section.visible {
+            transform: translateY(0);
+            opacity: 1;
         }
 
+        /* Staggered children */
+        .stagger-children > * {
+            transform: translateY(30px);
+            opacity: 0;
+            transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease;
+        }
+        .stagger-children.visible > *:nth-child(1) { transition-delay: 0s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(2) { transition-delay: 0.1s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(3) { transition-delay: 0.2s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(4) { transition-delay: 0.3s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(5) { transition-delay: 0.4s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(6) { transition-delay: 0.5s; transform: translateY(0); opacity: 1; }
+
+        /* Glass panel */
         .glass-panel {
-            background: rgba(20, 20, 20, 0.6);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(15, 15, 15, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border);
         }
 
+        /* Hover lift */
         .hover-lift {
-            transition: transform 0.4s ease, border-color 0.4s ease;
+            transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.5s ease, box-shadow 0.5s ease;
         }
         .hover-lift:hover {
-            transform: translateY(-4px);
-            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-6px);
+            border-color: rgba(255,255,255,0.15);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+        }
+
+        /* Network canvas */
+        #network-canvas {
+            position: absolute;
+            inset: 0;
+            z-index: 0;
+        }
+
+        /* Flywheel */
+        .flywheel-ring {
+            animation: spinSlow 20s linear infinite;
+        }
+        @keyframes spinSlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .flywheel-ring-reverse {
+            animation: spinSlowReverse 30s linear infinite;
+        }
+        @keyframes spinSlowReverse {
+            from { transform: rotate(360deg); }
+            to { transform: rotate(0deg); }
+        }
+
+        /* Pulse */
+        .pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(255,255,255,0.05); }
+            50% { box-shadow: 0 0 40px rgba(255,255,255,0.12); }
+        }
+
+        /* Ticker */
+        .stat-number {
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Tier card active */
+        .tier-card.active {
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* Simulator slider */
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 2px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 1px;
+            outline: none;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        /* Book mockup */
+        .book-3d {
+            perspective: 800px;
+        }
+        .book-3d-inner {
+            transform: rotateY(-15deg) rotateX(5deg);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .book-3d:hover .book-3d-inner {
+            transform: rotateY(-5deg) rotateX(2deg);
+        }
+
+        /* Pie chart */
+        .pie-segment {
+            transition: opacity 0.3s ease;
+        }
+        .pie-segment:hover {
+            opacity: 0.8;
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 0%, #999 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Divider line animation */
+        .line-reveal {
+            width: 0;
+            transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .line-reveal.visible {
+            width: 100%;
+        }
+
+        /* Counter animation */
+        .count-up {
+            transition: all 0.3s ease;
         }
     </style>
 </head>
-<body class="bg-[#050505] text-[#E0E0E0] font-sans antialiased selection:bg-white selection:text-black flex flex-col min-h-screen overflow-x-hidden relative">
+<body class="bg-[#050505] text-[#E0E0E0] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
 
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 z-0 pointer-events-none opacity-20" style="background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 100px 100px;"></div>
-
-    <!-- Navigation -->
-    <nav class="relative z-10 w-full px-8 py-6 flex justify-between items-center border-b border-white/10">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
-            <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400">Foundation</span>
-        </div>
-        <div class="flex items-center gap-6">
-            <a href="/guide" class="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="book-open" class="w-3 h-3"></i>
-                Guide
+    <!-- ═══════════════════════════════════════ -->
+    <!-- NAVIGATION                              -->
+    <!-- ═══════════════════════════════════════ -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
+                <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400 hidden sm:inline">Foundation</span>
             </a>
-            <a href="/claim" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black flex items-center gap-2">
-                <i data-lucide="arrow-right-circle" class="w-3 h-3"></i>
-                Claim XKI
-            </a>
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="#ecosystem" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Ecosystem</a>
+                <a href="#staking" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Staking</a>
+                <a href="#tokenomics" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Tokenomics</a>
+                <a href="/claim" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Claim</a>
+                <a href="/stake" class="px-4 py-2 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-gray-200 transition-colors">
+                    Stake XKI
+                </a>
+            </div>
         </div>
     </nav>
 
-    <!-- Hero -->
-    <main class="flex-grow relative z-10">
-        <section class="flex flex-col items-center justify-center text-center px-6 py-24 md:py-36">
-            <div class="fade-in">
-                <p class="text-[10px] md:text-xs uppercase tracking-[0.5em] text-gray-500 font-light mb-6">Architecture of Value</p>
-            </div>
-            <h1 class="text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 tracking-wide fade-in fade-in-delay-1">
-                Ki Foundation
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 1 · HERO                        -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="relative min-h-screen flex flex-col justify-center items-center pt-20 overflow-hidden">
+        <canvas id="network-canvas"></canvas>
+        
+        <div class="relative z-10 text-center px-6 max-w-4xl mx-auto">
+            <p class="text-[10px] md:text-xs uppercase tracking-[0.6em] text-gray-500 font-light mb-8 parallax-section">Ki Foundation</p>
+            
+            <h1 class="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-serif text-white mb-6 tracking-wide leading-[1.1] parallax-section gradient-text">
+                Own the infrastructure.<br>Earn from everything<br>built on it.
             </h1>
-            <p class="max-w-xl text-sm md:text-base text-gray-500 font-light leading-relaxed mb-12 fade-in fade-in-delay-2">
-                Building the infrastructure for a decentralized future. From Ki Chain to Ethereum — a legacy transition preserving value, enabling governance, and empowering holders.
+            
+            <p class="max-w-2xl mx-auto text-sm md:text-base text-gray-500 font-light leading-relaxed mb-12 parallax-section">
+                $XKI is the loyalty layer of an entire ecosystem. Stake once, earn rewards from every project — forever.
             </p>
-            <div class="flex flex-col sm:flex-row items-center gap-4 fade-in fade-in-delay-3">
-                <a href="/claim" class="group px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center gap-3">
-                    Start Migration
+            
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 parallax-section">
+                <a href="/stake" class="group px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-all flex items-center gap-3">
+                    Stake XKI
                     <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
                 </a>
-                <a href="/guide" class="px-8 py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-colors flex items-center gap-3">
-                    <i data-lucide="book-open" class="w-3.5 h-3.5 opacity-50"></i>
-                    Read the Guide
+                <a href="#philosophy" class="px-8 py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3">
+                    Read the Manifesto
                 </a>
             </div>
-        </section>
+        </div>
 
-        <!-- Pillars -->
-        <section class="max-w-5xl mx-auto px-6 pb-24">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Pillar 1 -->
-                <div class="glass-panel p-8 hover-lift fade-in fade-in-delay-1">
-                    <div class="mb-6 text-gray-500">
-                        <i data-lucide="repeat" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-xs uppercase tracking-[0.2em] text-white mb-3 font-serif">Migration</h3>
-                    <p class="text-sm text-gray-500 font-light leading-relaxed">
-                        Seamless transition from Ki Chain to Ethereum. Connect your Keplr wallet, verify holdings, and claim your $XKI ERC-20 tokens.
-                    </p>
+        <!-- Stats Bar -->
+        <div class="relative z-10 w-full border-t border-white/10 bg-[#050505]/60 backdrop-blur-xl mt-auto">
+            <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 divide-x divide-white/5">
+                <div class="py-6 md:py-8 text-center px-4">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Total XKI Staked</p>
+                    <p class="text-xl md:text-2xl font-serif text-white stat-number" data-count="248000000">248M</p>
                 </div>
-                <!-- Pillar 2 -->
-                <div class="glass-panel p-8 hover-lift fade-in fade-in-delay-2">
-                    <div class="mb-6 text-gray-500">
-                        <i data-lucide="vote" class="w-5 h-5"></i>
-                    </div>
-                    <h3 class="text-xs uppercase tracking-[0.2em] text-white mb-3 font-serif">Governance</h3>
-                    <p class="text-sm text-gray-500 font-light leading-relaxed">
-                        Shape the future of the ecosystem. Vote on proposals with your $XKI holdings — one token, one voice.
-                    </p>
+                <div class="py-6 md:py-8 text-center px-4">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Active Projects</p>
+                    <p class="text-xl md:text-2xl font-serif text-white stat-number" data-count="4">4</p>
                 </div>
-                <!-- Pillar 3 -->
-                <div class="glass-panel p-8 hover-lift fade-in fade-in-delay-3">
-                    <div class="mb-6 text-gray-500">
-                        <i data-lucide="lock" class="w-5 h-5"></i>
+                <div class="py-6 md:py-8 text-center px-4">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Rewards Distributed</p>
+                    <p class="text-xl md:text-2xl font-serif text-white stat-number">$1.2M</p>
+                </div>
+                <div class="py-6 md:py-8 text-center px-4">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Average APY</p>
+                    <p class="text-xl md:text-2xl font-serif text-white stat-number">12.4%</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 2 · HOW IT WORKS                -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 md:px-8">
+            <div class="text-center mb-20 parallax-section">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">The Model</p>
+                <h2 class="text-3xl md:text-5xl font-serif text-white">How It Works</h2>
+            </div>
+
+            <!-- 3 Steps -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 stagger-children">
+                <!-- Step 1 -->
+                <div class="glass-panel p-8 hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-white/20 to-transparent"></div>
+                    <div class="text-6xl font-serif text-white/5 absolute top-4 right-6">1</div>
+                    <div class="relative z-10">
+                        <div class="w-10 h-10 border border-white/20 flex items-center justify-center mb-6">
+                            <i data-lucide="lock" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <h3 class="text-sm uppercase tracking-[0.15em] text-white mb-3 font-serif">Stake XKI</h3>
+                        <p class="text-sm text-gray-500 font-light leading-relaxed">
+                            Lock your tokens. Choose your duration — 3 to 36 months. The longer you commit, the higher your multiplier. Up to 5x.
+                        </p>
                     </div>
-                    <h3 class="text-xs uppercase tracking-[0.2em] text-white mb-3 font-serif">Staking</h3>
-                    <p class="text-sm text-gray-500 font-light leading-relaxed">
-                        Lock your $XKI to earn ecosystem rewards. Multiplied returns for longer commitments — from 1x to 5x.
+                </div>
+                <!-- Step 2 -->
+                <div class="glass-panel p-8 hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-white/20 to-transparent"></div>
+                    <div class="text-6xl font-serif text-white/5 absolute top-4 right-6">2</div>
+                    <div class="relative z-10">
+                        <div class="w-10 h-10 border border-white/20 flex items-center justify-center mb-6">
+                            <i data-lucide="git-branch" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <h3 class="text-sm uppercase tracking-[0.15em] text-white mb-3 font-serif">The Ecosystem Grows</h3>
+                        <p class="text-sm text-gray-500 font-light leading-relaxed">
+                            Every project built on XKI emits its own token and generates fees. More projects, more revenue, more rewards.
+                        </p>
+                    </div>
+                </div>
+                <!-- Step 3 -->
+                <div class="glass-panel p-8 hover-lift relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-white/20 to-transparent"></div>
+                    <div class="text-6xl font-serif text-white/5 absolute top-4 right-6">3</div>
+                    <div class="relative z-10">
+                        <div class="w-10 h-10 border border-white/20 flex items-center justify-center mb-6">
+                            <i data-lucide="arrow-down-to-line" class="w-4 h-4 text-white"></i>
+                        </div>
+                        <h3 class="text-sm uppercase tracking-[0.15em] text-white mb-3 font-serif">You Capture Everything</h3>
+                        <p class="text-sm text-gray-500 font-light leading-relaxed">
+                            Fees from ALL projects are redistributed to stakers in each project's native token. You don't pick winners — you own the layer.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flywheel -->
+            <div class="flex flex-col items-center parallax-section">
+                <div class="relative w-72 h-72 md:w-96 md:h-96 mb-12">
+                    <!-- Outer ring -->
+                    <div class="absolute inset-0 rounded-full border border-white/5 flywheel-ring">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-white/20 rounded-full"></div>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-3 h-3 bg-white/10 rounded-full"></div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-white/10 rounded-full"></div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-3 h-3 bg-white/20 rounded-full"></div>
+                    </div>
+                    <!-- Middle ring -->
+                    <div class="absolute inset-8 md:inset-12 rounded-full border border-white/8 flywheel-ring-reverse">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[8px] uppercase tracking-widest text-gray-500 whitespace-nowrap bg-[#050505] px-2">Projects</div>
+                        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 text-[8px] uppercase tracking-widest text-gray-500 whitespace-nowrap bg-[#050505] px-2">Stakers</div>
+                        <div class="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 text-[8px] uppercase tracking-widest text-gray-500 whitespace-nowrap bg-[#050505] px-2">Fees</div>
+                        <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 text-[8px] uppercase tracking-widest text-gray-500 whitespace-nowrap bg-[#050505] px-2">Treasury</div>
+                    </div>
+                    <!-- Center -->
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-20 h-20 md:w-24 md:h-24 bg-white/5 border border-white/10 rounded-full flex items-center justify-center pulse-glow">
+                            <span class="font-serif text-white text-lg md:text-xl font-bold">XKI</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Insight -->
+                <div class="glass-panel px-8 py-6 max-w-xl text-center">
+                    <p class="text-sm md:text-base text-gray-400 italic font-light leading-relaxed">
+                        "You don't pick winners. You own the infrastructure."
                     </p>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <!-- Timeline / Key Info -->
-        <section class="border-t border-white/10 py-24">
-            <div class="max-w-3xl mx-auto px-6">
-                <div class="text-center mb-16 fade-in">
-                    <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">Key Information</p>
-                    <h2 class="text-3xl md:text-4xl font-serif text-white">The Transition</h2>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 3 · ECOSYSTEM                   -->
+    <!-- ═══════════════════════════════════════ -->
+    <section id="ecosystem" class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 md:px-8">
+            <div class="text-center mb-16 parallax-section">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">Built on XKI</p>
+                <h2 class="text-3xl md:text-5xl font-serif text-white">The Ecosystem</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+                <!-- Gordon.fi -->
+                <div class="glass-panel p-6 hover-lift group">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center font-serif font-bold text-white text-sm">G</div>
+                            <div>
+                                <h4 class="text-sm text-white font-semibold">Gordon.fi</h4>
+                                <span class="text-[10px] text-gray-500 font-mono">$GDN</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-green-500/10 text-green-400 border border-green-500/20">Live</span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-light leading-relaxed mb-4">Copy-trade top Polymarket traders through thematic vaults. Decentralized prediction market infrastructure.</p>
+                    <div class="flex justify-between text-[10px] text-gray-600 uppercase tracking-wider border-t border-white/5 pt-3">
+                        <span>Volume: $2.4M</span>
+                        <span>Fees: $48K</span>
+                    </div>
                 </div>
+
+                <!-- Dar Society -->
+                <div class="glass-panel p-6 hover-lift group">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center font-serif font-bold text-white text-sm">D</div>
+                            <div>
+                                <h4 class="text-sm text-white font-semibold">Dar Society</h4>
+                                <span class="text-[10px] text-gray-500 font-mono">$DAR</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-green-500/10 text-green-400 border border-green-500/20">Live</span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-light leading-relaxed mb-4">Cultural sanctuaries in Marrakech. Luxury hospitality meets Web3 loyalty — The Circle membership, $DAR tokens.</p>
+                    <div class="flex justify-between text-[10px] text-gray-600 uppercase tracking-wider border-t border-white/5 pt-3">
+                        <span>Volume: $840K</span>
+                        <span>Fees: $21K</span>
+                    </div>
+                </div>
+
+                <!-- Atom Living -->
+                <div class="glass-panel p-6 hover-lift group">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center font-serif font-bold text-white text-sm">A</div>
+                            <div>
+                                <h4 class="text-sm text-white font-semibold">Atom Living</h4>
+                                <span class="text-[10px] text-gray-500 font-mono">ATOM</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-green-500/10 text-green-400 border border-green-500/20">Live</span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-light leading-relaxed mb-4">Property management platform. Streamlined booking, contracts, and tenant management for the Dar Society portfolio.</p>
+                    <div class="flex justify-between text-[10px] text-gray-600 uppercase tracking-wider border-t border-white/5 pt-3">
+                        <span>Volume: $320K</span>
+                        <span>Fees: $12K</span>
+                    </div>
+                </div>
+
+                <!-- Hash -->
+                <div class="glass-panel p-6 hover-lift group opacity-60">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center font-serif font-bold text-white text-sm">#</div>
+                            <div>
+                                <h4 class="text-sm text-white font-semibold">Hash Game</h4>
+                                <span class="text-[10px] text-gray-500 font-mono">$HASH</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Paused</span>
+                    </div>
+                    <p class="text-xs text-gray-500 font-light leading-relaxed mb-4">On-chain gaming — sealed bid auctions, slots, and prediction games. Currently paused, development to resume.</p>
+                    <div class="flex justify-between text-[10px] text-gray-600 uppercase tracking-wider border-t border-white/5 pt-3">
+                        <span>Volume: —</span>
+                        <span>Fees: —</span>
+                    </div>
+                </div>
+
+                <!-- Coming Soon 1 -->
+                <div class="glass-panel p-6 hover-lift group border-dashed">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center">
+                                <i data-lucide="plus" class="w-4 h-4 text-gray-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-gray-400 font-semibold">Next Project</h4>
+                                <span class="text-[10px] text-gray-600 font-mono">$???</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-white/5 text-gray-500 border border-white/10">Coming Soon</span>
+                    </div>
+                    <p class="text-xs text-gray-600 font-light leading-relaxed mb-4">More projects joining the XKI ecosystem. Each one adds to the reward pool for all stakers.</p>
+                    <div class="border-t border-white/5 pt-3">
+                        <a href="#" class="text-[10px] uppercase tracking-wider text-gray-500 hover:text-white transition-colors flex items-center gap-2">
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            Apply to Build
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Coming Soon 2 -->
+                <div class="glass-panel p-6 hover-lift group border-dashed">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-white/5 rounded-lg flex items-center justify-center">
+                                <i data-lucide="plus" class="w-4 h-4 text-gray-600"></i>
+                            </div>
+                            <div>
+                                <h4 class="text-sm text-gray-400 font-semibold">Your Project</h4>
+                                <span class="text-[10px] text-gray-600 font-mono">$???</span>
+                            </div>
+                        </div>
+                        <span class="text-[9px] uppercase tracking-wider px-2 py-1 bg-white/5 text-gray-500 border border-white/10">Coming Soon</span>
+                    </div>
+                    <p class="text-xs text-gray-600 font-light leading-relaxed mb-4">Build on XKI infrastructure. Your fees flow to stakers, their loyalty flows to you.</p>
+                    <div class="border-t border-white/5 pt-3">
+                        <a href="#" class="text-[10px] uppercase tracking-wider text-gray-500 hover:text-white transition-colors flex items-center gap-2">
+                            <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            Build on XKI
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 4 · STAKING TIERS & REWARDS     -->
+    <!-- ═══════════════════════════════════════ -->
+    <section id="staking" class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 md:px-8">
+            <div class="text-center mb-16 parallax-section">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">Commitment Rewarded</p>
+                <h2 class="text-3xl md:text-5xl font-serif text-white">Staking Tiers</h2>
+            </div>
+
+            <!-- Tiers Table -->
+            <div class="overflow-x-auto mb-16 parallax-section">
+                <table class="w-full min-w-[640px]">
+                    <thead>
+                        <tr class="border-b border-white/10">
+                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Duration</th>
+                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Multiplier</th>
+                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Status</th>
+                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Benefits</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="py-5 text-sm text-white font-serif">3 months</td>
+                            <td class="py-5"><span class="text-sm font-mono text-white">1x</span></td>
+                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Explorer</span></td>
+                            <td class="py-5 text-xs text-gray-500">Base rewards from all ecosystem projects</td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="py-5 text-sm text-white font-serif">6 months</td>
+                            <td class="py-5"><span class="text-sm font-mono text-white">2x</span></td>
+                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Builder</span></td>
+                            <td class="py-5 text-xs text-gray-500">+ Early access to new projects</td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="py-5 text-sm text-white font-serif">12 months</td>
+                            <td class="py-5"><span class="text-sm font-mono text-white">3x</span></td>
+                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Architect</span></td>
+                            <td class="py-5 text-xs text-gray-500">+ Governance voting power</td>
+                        </tr>
+                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                            <td class="py-5 text-sm text-white font-serif">24 months</td>
+                            <td class="py-5"><span class="text-sm font-mono text-white">4x</span></td>
+                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Founder</span></td>
+                            <td class="py-5 text-xs text-gray-500">+ Fee discount across ecosystem</td>
+                        </tr>
+                        <tr class="hover:bg-white/[0.02] transition-colors">
+                            <td class="py-5 text-sm text-white font-serif">36 months</td>
+                            <td class="py-5"><span class="text-sm font-mono text-white">5x</span></td>
+                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Visionary</span></td>
+                            <td class="py-5 text-xs text-gray-500">+ Exclusive allocations in new launches</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Simulator -->
+            <div class="glass-panel p-8 md:p-12 max-w-2xl mx-auto parallax-section">
+                <h3 class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-8 text-center font-serif">Rewards Simulator</h3>
+                
                 <div class="space-y-8">
-                    <div class="flex gap-6 fade-in fade-in-delay-1">
-                        <div class="flex-shrink-0 w-10 h-10 border border-white/20 flex items-center justify-center font-serif text-white text-sm">1</div>
-                        <div>
-                            <h4 class="text-sm text-white uppercase tracking-wider mb-1">Token Supply</h4>
-                            <p class="text-sm text-gray-500 font-light leading-relaxed">Fixed supply of 1.2 billion $XKI on Ethereum mainnet. ERC-20, non-upgradeable.</p>
+                    <!-- Amount -->
+                    <div>
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Stake Amount</label>
+                            <span id="sim-amount-display" class="text-lg font-mono text-white">100,000 XKI</span>
+                        </div>
+                        <input type="range" id="sim-amount" min="1000" max="10000000" value="100000" step="1000" oninput="updateSimulator()">
+                        <div class="flex justify-between text-[9px] text-gray-600 mt-1">
+                            <span>1K</span>
+                            <span>10M</span>
                         </div>
                     </div>
-                    <div class="flex gap-6 fade-in fade-in-delay-2">
-                        <div class="flex-shrink-0 w-10 h-10 border border-white/20 flex items-center justify-center font-serif text-white text-sm">2</div>
-                        <div>
-                            <h4 class="text-sm text-white uppercase tracking-wider mb-1">Claim Period</h4>
-                            <p class="text-sm text-gray-500 font-light leading-relaxed">Migration window open until May 1, 2026. Verify your Ki Chain wallet and designate an Ethereum recipient.</p>
+
+                    <!-- Duration -->
+                    <div>
+                        <label class="text-[10px] uppercase tracking-widest text-gray-500 block mb-3">Lock Duration</label>
+                        <div class="grid grid-cols-5 gap-2" id="sim-duration-grid">
+                            <button onclick="setDuration(3)" class="tier-card py-3 border border-white/10 text-center hover:border-white/30 transition-all">
+                                <span class="block text-sm font-mono text-white">3m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">1x</span>
+                            </button>
+                            <button onclick="setDuration(6)" class="tier-card py-3 border border-white/10 text-center hover:border-white/30 transition-all">
+                                <span class="block text-sm font-mono text-white">6m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">2x</span>
+                            </button>
+                            <button onclick="setDuration(12)" class="tier-card py-3 border border-white/10 text-center hover:border-white/30 transition-all active">
+                                <span class="block text-sm font-mono text-white">12m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">3x</span>
+                            </button>
+                            <button onclick="setDuration(24)" class="tier-card py-3 border border-white/10 text-center hover:border-white/30 transition-all">
+                                <span class="block text-sm font-mono text-white">24m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">4x</span>
+                            </button>
+                            <button onclick="setDuration(36)" class="tier-card py-3 border border-white/10 text-center hover:border-white/30 transition-all">
+                                <span class="block text-sm font-mono text-white">36m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">5x</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex gap-6 fade-in fade-in-delay-3">
-                        <div class="flex-shrink-0 w-10 h-10 border border-white/20 flex items-center justify-center font-serif text-white text-sm">3</div>
-                        <div>
-                            <h4 class="text-sm text-white uppercase tracking-wider mb-1">Staking & Rewards</h4>
-                            <p class="text-sm text-gray-500 font-light leading-relaxed">Stake $XKI with multipliers up to 5x. Earn airdrops from ecosystem projects proportional to your commitment.</p>
+
+                    <!-- Results -->
+                    <div class="border-t border-white/10 pt-6 space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Effective Power</span>
+                            <span id="sim-power" class="text-lg font-mono text-white">300,000 XKI</span>
                         </div>
-                    </div>
-                    <div class="flex gap-6 fade-in fade-in-delay-4">
-                        <div class="flex-shrink-0 w-10 h-10 border border-white/20 flex items-center justify-center font-serif text-white text-sm">4</div>
-                        <div>
-                            <h4 class="text-sm text-white uppercase tracking-wider mb-1">Governance</h4>
-                            <p class="text-sm text-gray-500 font-light leading-relaxed">Participate in on-chain governance. Vote on ecosystem proposals directly from the claim portal.</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Tier</span>
+                            <span id="sim-tier" class="text-sm text-white uppercase tracking-wider">Architect</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Est. Monthly Rewards</span>
+                            <span id="sim-monthly" class="text-lg font-mono text-white">~$124</span>
+                        </div>
+                        <div class="space-y-2 pt-2">
+                            <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-2">Breakdown by Token</p>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 flex items-center gap-2"><span class="w-2 h-2 bg-white/40 rounded-full inline-block"></span>$GDN</span>
+                                <span id="sim-gdn" class="text-gray-400 font-mono">~$52</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 flex items-center gap-2"><span class="w-2 h-2 bg-white/25 rounded-full inline-block"></span>$DAR</span>
+                                <span id="sim-dar" class="text-gray-400 font-mono">~$38</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 flex items-center gap-2"><span class="w-2 h-2 bg-white/15 rounded-full inline-block"></span>ATOM</span>
+                                <span id="sim-atom" class="text-gray-400 font-mono">~$34</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
 
-        <!-- CTA -->
-        <section class="border-t border-white/10 py-24">
-            <div class="max-w-lg mx-auto px-6 text-center fade-in">
-                <h2 class="text-3xl md:text-4xl font-serif text-white mb-4">Begin Your Migration</h2>
-                <p class="text-sm text-gray-500 font-light mb-8">Connect your Keplr wallet and secure your $XKI tokens on Ethereum.</p>
-                <a href="/claim" class="group inline-flex items-center gap-3 px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors">
-                    Launch Claim Portal
-                    <i data-lucide="arrow-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                <a href="/stake" class="mt-8 w-full py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center justify-center gap-3">
+                    Start Staking
+                    <i data-lucide="arrow-right" class="w-4 h-4 opacity-50"></i>
                 </a>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
 
-    <!-- Footer -->
-    <footer class="relative z-10 w-full border-t border-white/10 bg-[#080808]">
-        <div class="max-w-5xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-6 h-6 bg-white text-black flex items-center justify-center font-serif font-bold text-xs">K</div>
-                <span class="text-[10px] tracking-[0.2em] uppercase text-gray-600">Ki Foundation</span>
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 5 · PHILOSOPHY                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <section id="philosophy" class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-3xl mx-auto px-6 md:px-8">
+            <div class="parallax-section">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-12">Manifesto</p>
+                
+                <h2 class="text-4xl md:text-6xl font-serif text-white mb-16 leading-[1.15]">
+                    Not shareholders.<br>
+                    <span class="text-gray-500">Stakeholders.</span>
+                </h2>
+
+                <div class="space-y-8 text-gray-400 font-light leading-[1.9] text-base md:text-lg">
+                    <p>
+                        The internet's value is created by its users. But the wealth it generates flows upward — to platforms, to shareholders, to people who never wrote a line of code or booked a single night. The architecture is extractive by design.
+                    </p>
+                    <p>
+                        We asked a different question: what if every participant could own a piece of the infrastructure? Not equity in a company — something more fundamental. A stake in the layer itself, beneath every product, every transaction, every interaction.
+                    </p>
+                    <p>
+                        $XKI is that layer. One token, connected to every project in the ecosystem. When Gordon.fi generates trading fees, when Dar Society books a villa, when Atom processes a lease — those revenues don't disappear into a corporate treasury. They flow back to the people who believed early enough to stake.
+                    </p>
+                    <p class="text-white">
+                        The more the ecosystem grows, the more every staker benefits. You don't need to pick the right project. You don't need to time the market. You just need to believe in the infrastructure — and commit.
+                    </p>
+                </div>
+
+                <div class="h-[1px] bg-white/10 my-16 line-reveal"></div>
+
+                <p class="text-xs text-gray-600 uppercase tracking-[0.3em]">
+                    This is stakeholder capitalism. This is XKI.
+                </p>
             </div>
-            <div class="flex items-center gap-6">
-                <a href="/claim" class="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">Claim</a>
-                <a href="/guide" class="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">Guide</a>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 6 · LE PETIT LIVRE BLEU         -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-5xl mx-auto px-6 md:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 items-center">
+                <!-- Book Mockup -->
+                <div class="flex justify-center parallax-section">
+                    <div class="book-3d">
+                        <div class="book-3d-inner w-56 md:w-64 aspect-[3/4] bg-[#1a2744] border border-[#2a3f6a]/50 shadow-2xl flex flex-col justify-between p-8 relative overflow-hidden">
+                            <!-- Spine shadow -->
+                            <div class="absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-black/30 to-transparent"></div>
+                            <!-- Content -->
+                            <div class="relative z-10">
+                                <p class="text-[8px] uppercase tracking-[0.4em] text-[#5a7ab5] mb-4">Ki Foundation</p>
+                                <h4 class="font-serif text-white text-lg leading-tight">Le Petit<br>Livre Bleu</h4>
+                            </div>
+                            <div class="relative z-10">
+                                <div class="h-[1px] bg-[#2a3f6a] mb-3"></div>
+                                <p class="text-[9px] text-[#5a7ab5] tracking-wider">Réda Berrehili</p>
+                            </div>
+                            <!-- Subtle pattern -->
+                            <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 2px 2px, white 1px, transparent 0); background-size: 20px 20px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Text -->
+                <div class="parallax-section">
+                    <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">The Book</p>
+                    <h2 class="text-2xl md:text-3xl font-serif text-white mb-6 leading-tight">
+                        The ideas behind XKI,<br>in one book.
+                    </h2>
+                    <p class="text-sm text-gray-400 font-light leading-relaxed mb-8">
+                        A manifesto on stakeholder capitalism, infrastructure ownership, and why the next wave of value creation will be shared — not extracted. From the philosophy of Klub to the architecture of XKI.
+                    </p>
+                    
+                    <!-- Pull quote -->
+                    <blockquote class="border-l-2 border-white/20 pl-6 mb-8">
+                        <p class="text-sm text-gray-300 italic leading-relaxed">
+                            "The best infrastructure is invisible. You don't see it — you just feel everything working. That's what we're building."
+                        </p>
+                    </blockquote>
+
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white font-serif font-bold">R</div>
+                        <div>
+                            <p class="text-sm text-white font-semibold">Réda Berrehili</p>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-wider">Founder — Klub, XKI, Dar Society</p>
+                        </div>
+                    </div>
+
+                    <a href="#" class="inline-flex items-center gap-3 px-6 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all">
+                        <i data-lucide="download" class="w-3 h-3"></i>
+                        Download Chapter 1
+                    </a>
+                </div>
             </div>
-            <p class="text-[10px] text-gray-600 uppercase tracking-[0.2em]">© 2026 Ki Foundation</p>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 7 · TOKENOMICS                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <section id="tokenomics" class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-6xl mx-auto px-6 md:px-8">
+            <div class="text-center mb-16 parallax-section">
+                <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-4">$XKI Token</p>
+                <h2 class="text-3xl md:text-5xl font-serif text-white">Tokenomics</h2>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                <!-- Pie Chart -->
+                <div class="flex flex-col items-center parallax-section">
+                    <div class="relative w-64 h-64 md:w-80 md:h-80 mb-8">
+                        <svg viewBox="0 0 200 200" class="w-full h-full -rotate-90">
+                            <!-- Airdrop/Claims 40% -->
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="24" stroke-dasharray="201.06 301.59" stroke-dashoffset="0" class="pie-segment"/>
+                            <!-- Treasury 25% -->
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.35)" stroke-width="24" stroke-dasharray="125.66 376.99" stroke-dashoffset="-201.06" class="pie-segment"/>
+                            <!-- Staking Rewards 15% -->
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="24" stroke-dasharray="75.40 427.26" stroke-dashoffset="-326.73" class="pie-segment"/>
+                            <!-- Team 10% -->
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="24" stroke-dasharray="50.27 452.39" stroke-dashoffset="-402.12" class="pie-segment"/>
+                            <!-- Ecosystem 10% -->
+                            <circle cx="100" cy="100" r="80" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="24" stroke-dasharray="50.27 452.39" stroke-dashoffset="-452.39" class="pie-segment"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span class="text-3xl font-serif text-white">1.2B</span>
+                            <span class="text-[9px] uppercase tracking-widest text-gray-500 mt-1">Fixed Supply</span>
+                        </div>
+                    </div>
+                    <!-- Legend -->
+                    <div class="grid grid-cols-2 gap-x-8 gap-y-2">
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="w-3 h-3 bg-white/60 rounded-sm"></span>
+                            <span class="text-gray-400">Airdrop / Claims <span class="text-gray-600">40%</span></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="w-3 h-3 bg-white/35 rounded-sm"></span>
+                            <span class="text-gray-400">Treasury <span class="text-gray-600">25%</span></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="w-3 h-3 bg-white/20 rounded-sm"></span>
+                            <span class="text-gray-400">Staking Rewards <span class="text-gray-600">15%</span></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="w-3 h-3 bg-white/12 rounded-sm"></span>
+                            <span class="text-gray-400">Team <span class="text-gray-600">10%</span></span>
+                        </div>
+                        <div class="flex items-center gap-2 text-xs">
+                            <span class="w-3 h-3 bg-white/6 rounded-sm"></span>
+                            <span class="text-gray-400">Ecosystem <span class="text-gray-600">10%</span></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Data -->
+                <div class="space-y-6 parallax-section">
+                    <div class="glass-panel p-6">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Supply</p>
+                        <p class="text-xl font-serif text-white mb-2">1,200,000,000 $XKI</p>
+                        <p class="text-xs text-gray-500 font-light">Fixed supply. ERC-20 on Ethereum mainnet. Non-upgradeable contract.</p>
+                    </div>
+                    
+                    <div class="glass-panel p-6">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Team Vesting</p>
+                        <div class="flex items-center gap-4 mb-3">
+                            <div class="flex-grow h-2 bg-white/5 rounded-full overflow-hidden">
+                                <div class="h-full bg-white/20 rounded-full" style="width: 0%"></div>
+                            </div>
+                            <span class="text-xs text-gray-500 font-mono whitespace-nowrap">0 / 36 mo</span>
+                        </div>
+                        <p class="text-xs text-gray-500 font-light">2-year cliff + 1-year linear vesting. Tokens locked but stakeable.</p>
+                    </div>
+
+                    <div class="glass-panel p-6">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-3">Mechanisms</p>
+                        <div class="space-y-3">
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="flame" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="text-xs text-white">Deflationary Burns</p>
+                                    <p class="text-[11px] text-gray-500">Early unstake slash (1%/remaining month) → permanently burned</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="layers" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="text-xs text-white">Multi-Position Staking</p>
+                                    <p class="text-[11px] text-gray-500">Multiple concurrent stakes per wallet, different durations</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-3">
+                                <i data-lucide="coins" class="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0"></i>
+                                <div>
+                                    <p class="text-xs text-white">Multi-Token Rewards</p>
+                                    <p class="text-[11px] text-gray-500">Synthetix-pattern distributor — real-time, pull-based</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="#" class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors border-b border-white/10 pb-1">
+                        <i data-lucide="file-text" class="w-3 h-3"></i>
+                        Full Tokenomics Paper
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SECTION 8 · CTA FINAL                   -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="relative py-24 md:py-36 border-t border-white/5">
+        <div class="max-w-3xl mx-auto px-6 md:px-8 text-center parallax-section">
+            <h2 class="text-3xl md:text-5xl lg:text-6xl font-serif text-white mb-6 leading-[1.15]">
+                The ecosystem is live.<br>
+                <span class="text-gray-500">Your seat is waiting.</span>
+            </h2>
+            <p class="text-sm text-gray-500 font-light mb-12 max-w-xl mx-auto">
+                Join the infrastructure layer. Stake $XKI and start earning from every project in the ecosystem.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+                <a href="/stake" class="group px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-all flex items-center gap-3">
+                    Stake XKI
+                    <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+                <a href="#" class="px-8 py-4 border border-white/20 text-white text-xs font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all flex items-center gap-3">
+                    Join the Community
+                </a>
+            </div>
+            <!-- Social Links -->
+            <div class="flex items-center justify-center gap-6">
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03z"/></svg></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i data-lucide="send" class="w-5 h-5"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- FOOTER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <footer class="border-t border-white/5 bg-[#030303]">
+        <div class="max-w-6xl mx-auto px-6 md:px-8 py-16">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-7 h-7 bg-white text-black flex items-center justify-center font-serif font-bold text-sm">K</div>
+                        <span class="text-xs tracking-[0.2em] uppercase text-gray-500">Ki Foundation</span>
+                    </div>
+                    <p class="text-xs text-gray-600 font-light leading-relaxed">Architecture of Value.<br>Building shared infrastructure for a decentralized future.</p>
+                </div>
+                <!-- Links 1 -->
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Product</p>
+                    <div class="space-y-3">
+                        <a href="/claim" class="block text-xs text-gray-600 hover:text-white transition-colors">Migration Portal</a>
+                        <a href="/stake" class="block text-xs text-gray-600 hover:text-white transition-colors">Staking</a>
+                        <a href="/guide" class="block text-xs text-gray-600 hover:text-white transition-colors">Governance Guide</a>
+                    </div>
+                </div>
+                <!-- Links 2 -->
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Resources</p>
+                    <div class="space-y-3">
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">Documentation</a>
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">GitHub</a>
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">Blog</a>
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">Tokenomics Paper</a>
+                    </div>
+                </div>
+                <!-- Links 3 -->
+                <div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Legal</p>
+                    <div class="space-y-3">
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">Terms of Service</a>
+                        <a href="#" class="block text-xs text-gray-600 hover:text-white transition-colors">Privacy Policy</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="border-t border-white/5 pt-8 mb-8">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500">Stay Updated</p>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <input type="email" placeholder="your@email.com" class="bg-transparent border border-white/10 px-4 py-2 text-xs text-white placeholder-gray-700 focus:outline-none focus:border-white/30 transition-colors w-full md:w-64">
+                        <button class="px-4 py-2 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-gray-200 transition-colors whitespace-nowrap">Subscribe</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom -->
+            <div class="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-[10px] text-gray-700 uppercase tracking-[0.2em]">© 2026 Ki Foundation — All rights reserved</p>
+                <div class="flex items-center gap-4 text-[9px] text-gray-700 font-mono">
+                    <span>ERC-20: Ethereum Mainnet</span>
+                    <span class="text-gray-800">•</span>
+                    <span>Supply: 1,200,000,000</span>
+                </div>
+            </div>
         </div>
     </footer>
 
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCRIPTS                                 -->
+    <!-- ═══════════════════════════════════════ -->
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
 
-            // Intersection Observer for fade-in on scroll
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(e => {
-                    if (e.isIntersecting) {
-                        e.target.style.animationPlayState = 'running';
-                        observer.unobserve(e.target);
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            document.querySelectorAll('.fade-in').forEach(el => {
-                el.style.animationPlayState = 'paused';
-                observer.observe(el);
+        // ─── Parallax / Intersection Observer ───
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) {
+                    e.target.classList.add('visible');
+                    observer.unobserve(e.target);
+                }
             });
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+        document.querySelectorAll('.parallax-section, .stagger-children, .line-reveal').forEach(el => observer.observe(el));
+
+        // ─── Network Canvas (Hero) ───
+        const canvas = document.getElementById('network-canvas');
+        const ctx = canvas.getContext('2d');
+        let nodes = [];
+        let mouse = { x: -1000, y: -1000 };
+
+        function resizeCanvas() {
+            canvas.width = canvas.parentElement.offsetWidth;
+            canvas.height = canvas.parentElement.offsetHeight;
+            initNodes();
+        }
+
+        function initNodes() {
+            nodes = [];
+            const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 12000));
+            // Central node (XKI)
+            nodes.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2 - 40,
+                vx: 0, vy: 0,
+                r: 6, central: true,
+                ox: canvas.width / 2,
+                oy: canvas.height / 2 - 40
+            });
+            // Satellite nodes
+            for (let i = 0; i < count; i++) {
+                nodes.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.3,
+                    vy: (Math.random() - 0.5) * 0.3,
+                    r: Math.random() * 2 + 1,
+                    central: false
+                });
+            }
+        }
+
+        function drawNetwork() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Update positions
+            nodes.forEach(n => {
+                if (n.central) {
+                    n.x = n.ox + Math.sin(Date.now() * 0.001) * 3;
+                    n.y = n.oy + Math.cos(Date.now() * 0.0008) * 3;
+                    return;
+                }
+                n.x += n.vx;
+                n.y += n.vy;
+                if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
+                if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
+
+                // Mouse repulsion
+                const dx = n.x - mouse.x;
+                const dy = n.y - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 150) {
+                    n.vx += (dx / dist) * 0.05;
+                    n.vy += (dy / dist) * 0.05;
+                }
+                // Dampen
+                n.vx *= 0.999;
+                n.vy *= 0.999;
+            });
+
+            // Draw connections
+            const central = nodes[0];
+            for (let i = 1; i < nodes.length; i++) {
+                const n = nodes[i];
+                const dx = central.x - n.x;
+                const dy = central.y - n.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                const maxDist = 300;
+                if (dist < maxDist) {
+                    const alpha = (1 - dist / maxDist) * 0.15;
+                    ctx.beginPath();
+                    ctx.moveTo(central.x, central.y);
+                    ctx.lineTo(n.x, n.y);
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.lineWidth = 0.5;
+                    ctx.stroke();
+
+                    // Particle traveling along line
+                    const t = ((Date.now() * 0.001 + i) % 3) / 3;
+                    const px = n.x + (central.x - n.x) * t;
+                    const py = n.y + (central.y - n.y) * t;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 1, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 255, 255, ${alpha * 2})`;
+                    ctx.fill();
+                }
+
+                // Inter-node connections
+                for (let j = i + 1; j < nodes.length; j++) {
+                    const n2 = nodes[j];
+                    const d = Math.hypot(n.x - n2.x, n.y - n2.y);
+                    if (d < 120) {
+                        ctx.beginPath();
+                        ctx.moveTo(n.x, n.y);
+                        ctx.lineTo(n2.x, n2.y);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - d / 120) * 0.04})`;
+                        ctx.lineWidth = 0.3;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw nodes
+            nodes.forEach(n => {
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+                if (n.central) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+                    // Glow
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
+                    ctx.shadowBlur = 20;
+                } else {
+                    ctx.fillStyle = `rgba(255, 255, 255, ${0.1 + n.r * 0.1})`;
+                    ctx.shadowBlur = 0;
+                }
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            });
+
+            requestAnimationFrame(drawNetwork);
+        }
+
+        canvas.parentElement.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
         });
+
+        resizeCanvas();
+        drawNetwork();
+        window.addEventListener('resize', resizeCanvas);
+
+        // ─── Simulator ───
+        window.setDuration = setDuration;
+        window.updateSimulator = updateSimulator;
+        setDuration(12);
+    });
+
+    // ─── Staking Simulator Logic ───
+    let simDuration = 12;
+    const multipliers = { 3: 1, 6: 2, 12: 3, 24: 4, 36: 5 };
+    const tierNames = { 3: 'Explorer', 6: 'Builder', 12: 'Architect', 24: 'Founder', 36: 'Visionary' };
+    const baseAPY = 0.124; // 12.4%
+
+    function setDuration(months) {
+        simDuration = months;
+        document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+        const btns = document.querySelectorAll('#sim-duration-grid .tier-card');
+        const idx = [3, 6, 12, 24, 36].indexOf(months);
+        if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+        updateSimulator();
+    }
+
+    function updateSimulator() {
+        const amount = parseInt(document.getElementById('sim-amount').value);
+        const mult = multipliers[simDuration] || 1;
+        const power = amount * mult;
+        const monthlyBase = (amount * baseAPY) / 12;
+        const monthly = monthlyBase * mult;
+
+        document.getElementById('sim-amount-display').textContent = amount.toLocaleString() + ' XKI';
+        document.getElementById('sim-power').textContent = power.toLocaleString() + ' XKI';
+        document.getElementById('sim-tier').textContent = tierNames[simDuration];
+        document.getElementById('sim-monthly').textContent = '~$' + Math.round(monthly).toLocaleString();
+
+        // Breakdown (approximate splits)
+        document.getElementById('sim-gdn').textContent = '~$' + Math.round(monthly * 0.42);
+        document.getElementById('sim-dar').textContent = '~$' + Math.round(monthly * 0.31);
+        document.getElementById('sim-atom').textContent = '~$' + Math.round(monthly * 0.27);
+    }
     </script>
 </body>
 </html>
