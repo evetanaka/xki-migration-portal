@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stake XKI — Ki Foundation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Manrope:wght@200;300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root { --bg: #050505; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .font-serif { font-family: 'Cinzel', serif; }
+        .font-sans { font-family: 'Manrope', sans-serif; }
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+        .parallax-section { transform: translateY(40px); opacity: 0; transition: transform 0.9s cubic-bezier(0.16,1,0.3,1), opacity 0.9s ease; }
+        .parallax-section.visible { transform: translateY(0); opacity: 1; }
+        .stagger-children > * { transform: translateY(30px); opacity: 0; transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), opacity 0.7s ease; }
+        .stagger-children.visible > *:nth-child(1) { transition-delay: 0s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(2) { transition-delay: 0.1s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(3) { transition-delay: 0.15s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(4) { transition-delay: 0.2s; transform: translateY(0); opacity: 1; }
+        .stagger-children.visible > *:nth-child(5) { transition-delay: 0.25s; transform: translateY(0); opacity: 1; }
+
+        .glass-panel { background: rgba(15,15,15,0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+        .hover-lift { transition: transform 0.5s cubic-bezier(0.16,1,0.3,1), border-color 0.5s ease, box-shadow 0.5s ease; }
+        .hover-lift:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+
+        .tier-card { transition: all 0.3s ease; cursor: pointer; }
+        .tier-card.active { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.06); }
+        .tier-card:hover:not(.active) { border-color: rgba(255,255,255,0.2); }
+
+        input[type="range"] { -webkit-appearance: none; width: 100%; height: 2px; background: rgba(255,255,255,0.15); border-radius: 1px; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: white; border-radius: 50%; cursor: pointer; }
+
+        input[type="number"] { -moz-appearance: textfield; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+        .progress-bar { background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+        .progress-fill { height: 100%; background: rgba(255,255,255,0.3); border-radius: 2px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+
+        .tab-btn { transition: all 0.3s ease; }
+        .tab-btn.active { color: white; border-color: white; }
+
+        /* Pulse for claimable */
+        .pulse-soft { animation: pulseSoft 2.5s ease-in-out infinite; }
+        @keyframes pulseSoft { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        /* Modal */
+        .modal-backdrop { background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); }
+
+        /* Gradient text */
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #999 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    </style>
+</head>
+<body class="bg-[#050505] text-[#E0E0E0] font-sans antialiased selection:bg-white selection:text-black overflow-x-hidden">
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- NAVIGATION                              -->
+    <!-- ═══════════════════════════════════════ -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
+                <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400 hidden sm:inline">Foundation</span>
+            </a>
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Home</a>
+                <a href="/claim" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Claim</a>
+                <a href="/guide" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Guide</a>
+                <!-- Disconnected state -->
+                <button id="btn-connect-nav" onclick="connectWallet()" class="px-4 py-2 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-gray-200 transition-colors flex items-center gap-2">
+                    <i data-lucide="wallet" class="w-3 h-3"></i>
+                    Connect
+                </button>
+                <!-- Connected state -->
+                <div id="wallet-connected-nav" class="hidden flex items-center gap-2">
+                    <span id="nav-address" class="text-[10px] font-mono text-gray-400 hidden sm:inline">0x3B...96</span>
+                    <button onclick="disconnectWallet()" class="px-3 py-2 border border-white/10 text-gray-500 hover:text-red-400 hover:border-red-900 transition-all text-[10px]">
+                        <i data-lucide="log-out" class="w-3 h-3"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- HEADER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <section class="pt-28 pb-8 px-6 md:px-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-8 parallax-section">
+                <div>
+                    <p class="text-[10px] uppercase tracking-[0.4em] text-gray-500 mb-2">Ki Foundation</p>
+                    <h1 class="text-3xl md:text-4xl font-serif text-white gradient-text">Staking</h1>
+                </div>
+                <p class="text-xs text-gray-500 font-light max-w-md">Lock your $XKI tokens, earn rewards from every project in the ecosystem. The longer you commit, the more you earn.</p>
+            </div>
+
+            <!-- Global Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 parallax-section">
+                <div class="glass-panel p-5 text-center">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Total Value Locked</p>
+                    <p class="text-xl font-serif text-white">—</p>
+                </div>
+                <div class="glass-panel p-5 text-center">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Average APY</p>
+                    <p class="text-xl font-serif text-white">—</p>
+                </div>
+                <div class="glass-panel p-5 text-center">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Total Stakers</p>
+                    <p class="text-xl font-serif text-white">—</p>
+                </div>
+                <div class="glass-panel p-5 text-center">
+                    <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Reward Tokens</p>
+                    <p class="text-xl font-serif text-white">—</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- DISCONNECTED VIEW                       -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="view-disconnected">
+
+        <!-- Tiers Overview -->
+        <section class="py-12 px-6 md:px-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="text-center mb-10 parallax-section">
+                    <h2 class="text-2xl font-serif text-white mb-2">Choose Your Commitment</h2>
+                    <p class="text-xs text-gray-500">Higher lock duration = higher multiplier = more rewards</p>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 stagger-children">
+                    <div class="glass-panel p-6 hover-lift text-center">
+                        <div class="text-3xl mb-3">🔭</div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">3 months</p>
+                        <h4 class="font-serif text-white text-sm mb-2">Explorer</h4>
+                        <div class="text-2xl font-mono text-white font-bold mb-4">1x</div>
+                        <div class="h-[1px] bg-white/10 mb-4"></div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Base rewards from all ecosystem projects</p>
+                    </div>
+                    <div class="glass-panel p-6 hover-lift text-center">
+                        <div class="text-3xl mb-3">🏗️</div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">6 months</p>
+                        <h4 class="font-serif text-white text-sm mb-2">Builder</h4>
+                        <div class="text-2xl font-mono text-white font-bold mb-4">2x</div>
+                        <div class="h-[1px] bg-white/10 mb-4"></div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Early access to ecosystem projects</p>
+                    </div>
+                    <div class="glass-panel p-6 hover-lift text-center border-white/15">
+                        <div class="text-3xl mb-3">⚖️</div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">12 months</p>
+                        <h4 class="font-serif text-white text-sm mb-2">Architect</h4>
+                        <div class="text-2xl font-mono text-white font-bold mb-4">3x</div>
+                        <div class="h-[1px] bg-white/10 mb-4"></div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Governance voting power</p>
+                    </div>
+                    <div class="glass-panel p-6 hover-lift text-center">
+                        <div class="text-3xl mb-3">🔑</div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">24 months</p>
+                        <h4 class="font-serif text-white text-sm mb-2">Founder</h4>
+                        <div class="text-2xl font-mono text-white font-bold mb-4">4x</div>
+                        <div class="h-[1px] bg-white/10 mb-4"></div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Ecosystem projects private sale access</p>
+                    </div>
+                    <div class="glass-panel p-6 hover-lift text-center">
+                        <div class="text-3xl mb-3">🚀</div>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">36 months</p>
+                        <h4 class="font-serif text-white text-sm mb-2">Visionary</h4>
+                        <div class="text-2xl font-mono text-white font-bold mb-4">5x</div>
+                        <div class="h-[1px] bg-white/10 mb-4"></div>
+                        <p class="text-[11px] text-gray-500 leading-relaxed">Ecosystem projects TGE Airdrops</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulator -->
+        <section class="py-12 px-6 md:px-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="glass-panel p-8 md:p-12 parallax-section">
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-8 text-center font-serif">Rewards Simulator</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-end mb-3">
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Stake Amount</label>
+                                <span id="sim-amount-display" class="text-lg font-mono text-white">100,000 XKI</span>
+                            </div>
+                            <input type="range" id="sim-amount" min="1000" max="10000000" value="100000" step="1000" oninput="updateSimulator()">
+                            <div class="flex justify-between text-[9px] text-gray-600 mt-1"><span>1K</span><span>10M</span></div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500 block mb-3">Lock Duration</label>
+                            <div class="grid grid-cols-5 gap-2" id="sim-duration-grid">
+                                <button onclick="setSimDuration(3)" class="tier-card py-3 border border-white/10 text-center">
+                                    <span class="block text-sm font-mono text-white">3m</span>
+                                    <span class="block text-[9px] text-gray-600 mt-1">1x</span>
+                                </button>
+                                <button onclick="setSimDuration(6)" class="tier-card py-3 border border-white/10 text-center">
+                                    <span class="block text-sm font-mono text-white">6m</span>
+                                    <span class="block text-[9px] text-gray-600 mt-1">2x</span>
+                                </button>
+                                <button onclick="setSimDuration(12)" class="tier-card py-3 border border-white/10 text-center active">
+                                    <span class="block text-sm font-mono text-white">12m</span>
+                                    <span class="block text-[9px] text-gray-600 mt-1">3x</span>
+                                </button>
+                                <button onclick="setSimDuration(24)" class="tier-card py-3 border border-white/10 text-center">
+                                    <span class="block text-sm font-mono text-white">24m</span>
+                                    <span class="block text-[9px] text-gray-600 mt-1">4x</span>
+                                </button>
+                                <button onclick="setSimDuration(36)" class="tier-card py-3 border border-white/10 text-center">
+                                    <span class="block text-sm font-mono text-white">36m</span>
+                                    <span class="block text-[9px] text-gray-600 mt-1">5x</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="border-t border-white/10 pt-6 space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] uppercase tracking-widest text-gray-500">Effective Power</span>
+                                <span id="sim-power" class="text-lg font-mono text-white">300,000 XKI</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] uppercase tracking-widest text-gray-500">Tier</span>
+                                <span id="sim-tier" class="text-sm text-white uppercase tracking-wider">Architect</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] uppercase tracking-widest text-gray-500">Est. Monthly Rewards</span>
+                                <span id="sim-monthly" class="text-lg font-mono text-white">~$124</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buy XKI -->
+        <section class="py-12 px-6 md:px-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="glass-panel p-8 text-center parallax-section">
+                    <div class="text-3xl mb-4">💱</div>
+                    <h3 class="text-sm uppercase tracking-[0.15em] text-white mb-2 font-serif">Get XKI</h3>
+                    <p class="text-xs text-gray-500 font-light mb-6">Acquire $XKI tokens to start staking and earning ecosystem rewards.</p>
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                        <a href="#" class="px-6 py-3 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center gap-2">
+                            <i data-lucide="arrow-left-right" class="w-3 h-3"></i>
+                            Swap on Uniswap
+                        </a>
+                        <button onclick="addToMetamask()" class="px-6 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-colors flex items-center gap-2">
+                            <i data-lucide="plus-circle" class="w-3 h-3"></i>
+                            Add to MetaMask
+                        </button>
+                    </div>
+                    <div class="mt-6 flex items-center justify-center gap-2">
+                        <span class="text-[9px] font-mono text-gray-600" id="token-address">0xa342...1466</span>
+                        <button onclick="copyAddress()" class="text-gray-600 hover:text-white transition-colors">
+                            <i data-lucide="copy" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Connect CTA -->
+        <section class="py-16 px-6 md:px-8">
+            <div class="max-w-lg mx-auto text-center parallax-section">
+                <div class="w-16 h-16 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i data-lucide="wallet" class="w-6 h-6 text-gray-500"></i>
+                </div>
+                <h3 class="text-xl font-serif text-white mb-3">Connect Your Wallet</h3>
+                <p class="text-xs text-gray-500 font-light mb-8">Connect with MetaMask or any EVM wallet to view your positions, stake, and claim rewards.</p>
+                <button onclick="connectWallet()" class="group px-8 py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-all flex items-center justify-center gap-3 mx-auto">
+                    Connect Wallet
+                    <i data-lucide="chevron-right" class="w-4 h-4 opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- CONNECTED VIEW                          -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="view-connected" class="hidden">
+
+        <!-- Dashboard -->
+        <section class="py-8 px-6 md:px-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 parallax-section">
+                    <!-- Total Staked -->
+                    <div class="glass-panel p-5">
+                        <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">My Total Staked</p>
+                        <p class="text-xl font-serif text-white" id="dash-total-staked">150,000 XKI</p>
+                        <p class="text-[10px] text-gray-600 mt-1 font-mono" id="dash-total-usd">~$12,000</p>
+                    </div>
+                    <!-- Effective Weight -->
+                    <div class="glass-panel p-5">
+                        <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Effective Weight</p>
+                        <p class="text-xl font-serif text-white" id="dash-weight">450,000</p>
+                        <p class="text-[10px] text-gray-600 mt-1">weighted power</p>
+                    </div>
+                    <!-- Current Tier -->
+                    <div class="glass-panel p-5">
+                        <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Current Tier</p>
+                        <p class="text-xl font-serif text-white" id="dash-tier">⚖️ Architect</p>
+                        <p class="text-[10px] text-gray-600 mt-1" id="dash-tier-mult">3x multiplier</p>
+                    </div>
+                    <!-- Total Claimable -->
+                    <div class="glass-panel p-5 relative">
+                        <div class="absolute top-3 right-3 w-2 h-2 bg-green-400 rounded-full pulse-soft" id="claimable-dot"></div>
+                        <p class="text-[9px] uppercase tracking-[0.3em] text-gray-600 mb-2">Total Claimable</p>
+                        <p class="text-xl font-serif text-white" id="dash-claimable">~$42.50</p>
+                        <p class="text-[10px] text-gray-600 mt-1" id="dash-claimable-tokens">across 2 tokens</p>
+                    </div>
+                </div>
+
+                <!-- Wallet Balance -->
+                <div class="mt-4 glass-panel p-4 flex flex-col sm:flex-row items-center justify-between gap-3 parallax-section">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="wallet" class="w-4 h-4 text-gray-500"></i>
+                        <span class="text-xs text-gray-400">Available in wallet:</span>
+                        <span class="text-sm font-mono text-white" id="dash-balance">50,000 XKI</span>
+                    </div>
+                    <a href="#new-stake" class="text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors flex items-center gap-1">
+                        Stake more <i data-lucide="arrow-down" class="w-3 h-3"></i>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- My Positions -->
+        <section class="py-8 px-6 md:px-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center justify-between mb-6 parallax-section">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="layers" class="w-4 h-4 text-gray-500"></i>
+                        <h2 class="text-lg font-serif text-white">My Positions</h2>
+                    </div>
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500" id="positions-count">2 active</span>
+                </div>
+
+                <div class="space-y-4" id="positions-list">
+                    <!-- Position 1 -->
+                    <div class="glass-panel p-6 parallax-section">
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+                            <!-- Info -->
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="text-[10px] uppercase tracking-widest text-gray-400 bg-white/5 px-2 py-1">Position #1</span>
+                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+                                    <span class="text-[9px] uppercase tracking-wider text-gray-500">⚖️ Architect · 3x</span>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Amount</p>
+                                        <p class="text-sm font-mono text-white">100,000 XKI</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Lock</p>
+                                        <p class="text-sm text-white">12 months</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Started</p>
+                                        <p class="text-sm text-gray-400">15 Apr 2026</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Unlocks</p>
+                                        <p class="text-sm text-white">15 Apr 2027</p>
+                                    </div>
+                                </div>
+                                <!-- Progress -->
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-grow progress-bar h-1.5">
+                                        <div class="progress-fill" style="width: 65%"></div>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-gray-500 whitespace-nowrap">65% elapsed</span>
+                                </div>
+                            </div>
+                            <!-- Actions -->
+                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[140px]">
+                                <button onclick="claimRewards(1)" class="flex-1 lg:flex-none py-2.5 px-4 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors text-center">
+                                    Claim Rewards
+                                </button>
+                                <button onclick="showUnstakeModal(1)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center">
+                                    Early Unstake
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Position 2 -->
+                    <div class="glass-panel p-6 parallax-section">
+                        <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+                            <div class="flex-grow">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <span class="text-[10px] uppercase tracking-widest text-gray-400 bg-white/5 px-2 py-1">Position #2</span>
+                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+                                    <span class="text-[9px] uppercase tracking-wider text-gray-500">🏗️ Builder · 2x</span>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Amount</p>
+                                        <p class="text-sm font-mono text-white">50,000 XKI</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Lock</p>
+                                        <p class="text-sm text-white">6 months</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Started</p>
+                                        <p class="text-sm text-gray-400">1 May 2026</p>
+                                    </div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Unlocks</p>
+                                        <p class="text-sm text-white">1 Nov 2026</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex-grow progress-bar h-1.5">
+                                        <div class="progress-fill" style="width: 35%"></div>
+                                    </div>
+                                    <span class="text-[10px] font-mono text-gray-500 whitespace-nowrap">35% elapsed</span>
+                                </div>
+                            </div>
+                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[140px]">
+                                <button onclick="claimRewards(2)" class="flex-1 lg:flex-none py-2.5 px-4 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors text-center">
+                                    Claim Rewards
+                                </button>
+                                <button onclick="showUnstakeModal(2)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center">
+                                    Early Unstake
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rewards Panel -->
+        <section class="py-8 px-6 md:px-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="flex items-center gap-3 mb-6 parallax-section">
+                    <i data-lucide="gift" class="w-4 h-4 text-gray-500"></i>
+                    <h2 class="text-lg font-serif text-white">Rewards</h2>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                    <!-- Claimable -->
+                    <div class="lg:col-span-2 glass-panel p-6 parallax-section">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Claimable Rewards</p>
+                        <div class="space-y-3 mb-6">
+                            <div class="flex items-center justify-between py-3 border-b border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold text-white">D</div>
+                                    <div>
+                                        <p class="text-sm text-white font-mono">1,250 $DAR</p>
+                                        <p class="text-[10px] text-gray-600">Dar Society</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-mono text-gray-400">~$31.25</span>
+                            </div>
+                            <div class="flex items-center justify-between py-3 border-b border-white/5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center text-xs font-bold text-white">G</div>
+                                    <div>
+                                        <p class="text-sm text-white font-mono">180 $GDN</p>
+                                        <p class="text-[10px] text-gray-600">Gordon.fi</p>
+                                    </div>
+                                </div>
+                                <span class="text-sm font-mono text-gray-400">~$11.25</span>
+                            </div>
+                            <div class="flex items-center justify-between pt-2">
+                                <span class="text-xs text-gray-400 uppercase tracking-wider">Total</span>
+                                <span class="text-lg font-mono text-white">~$42.50</span>
+                            </div>
+                        </div>
+                        <button onclick="claimAll()" class="w-full py-3 bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-3 h-3"></i>
+                            Claim All Rewards
+                        </button>
+                    </div>
+
+                    <!-- History -->
+                    <div class="glass-panel p-6 parallax-section">
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-4">Recent Claims</p>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-white font-mono">+520 $DAR</p>
+                                    <p class="text-[9px] text-gray-600">2 days ago</p>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-500">~$13.00</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-white font-mono">+85 $GDN</p>
+                                    <p class="text-[9px] text-gray-600">5 days ago</p>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-500">~$5.31</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-xs text-white font-mono">+410 $DAR</p>
+                                    <p class="text-[9px] text-gray-600">1 week ago</p>
+                                </div>
+                                <span class="text-[10px] font-mono text-gray-500">~$10.25</span>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-white/5">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[9px] uppercase tracking-widest text-gray-600">All-time earned</span>
+                                <span class="text-sm font-mono text-white">~$284.50</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- New Stake -->
+        <section id="new-stake" class="py-8 px-6 md:px-8 pb-16">
+            <div class="max-w-2xl mx-auto">
+                <div class="flex items-center gap-3 mb-6 parallax-section">
+                    <i data-lucide="plus-circle" class="w-4 h-4 text-gray-500"></i>
+                    <h2 class="text-lg font-serif text-white">New Stake</h2>
+                </div>
+
+                <div class="glass-panel p-8 md:p-10 parallax-section">
+                    <!-- Amount Input -->
+                    <div class="mb-8">
+                        <div class="flex justify-between items-end mb-3">
+                            <label class="text-[10px] uppercase tracking-widest text-gray-500">Amount</label>
+                            <button onclick="setMaxStake()" class="text-[9px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors border border-white/10 px-2 py-0.5">MAX</button>
+                        </div>
+                        <div class="flex items-center border-b border-white/20 pb-2 gap-3">
+                            <input type="number" id="stake-amount" placeholder="0" class="flex-grow bg-transparent text-2xl font-mono text-white placeholder-gray-800 focus:outline-none" oninput="updateStakePreview()">
+                            <span class="text-sm text-gray-500 font-mono">XKI</span>
+                        </div>
+                        <p class="text-[10px] text-gray-600 mt-2">Balance: <span id="stake-balance" class="font-mono">50,000 XKI</span></p>
+                    </div>
+
+                    <!-- Duration Selection -->
+                    <div class="mb-8">
+                        <label class="text-[10px] uppercase tracking-widest text-gray-500 block mb-3">Lock Duration</label>
+                        <div class="grid grid-cols-5 gap-2" id="stake-duration-grid">
+                            <button onclick="setStakeDuration(0)" class="tier-card py-4 border border-white/10 text-center">
+                                <span class="text-2xl block mb-1">🔭</span>
+                                <span class="block text-xs font-mono text-white">3m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">1x</span>
+                            </button>
+                            <button onclick="setStakeDuration(1)" class="tier-card py-4 border border-white/10 text-center">
+                                <span class="text-2xl block mb-1">🏗️</span>
+                                <span class="block text-xs font-mono text-white">6m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">2x</span>
+                            </button>
+                            <button onclick="setStakeDuration(2)" class="tier-card py-4 border border-white/10 text-center active">
+                                <span class="text-2xl block mb-1">⚖️</span>
+                                <span class="block text-xs font-mono text-white">12m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">3x</span>
+                            </button>
+                            <button onclick="setStakeDuration(3)" class="tier-card py-4 border border-white/10 text-center">
+                                <span class="text-2xl block mb-1">🔑</span>
+                                <span class="block text-xs font-mono text-white">24m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">4x</span>
+                            </button>
+                            <button onclick="setStakeDuration(4)" class="tier-card py-4 border border-white/10 text-center">
+                                <span class="text-2xl block mb-1">🚀</span>
+                                <span class="block text-xs font-mono text-white">36m</span>
+                                <span class="block text-[9px] text-gray-600 mt-1">5x</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Preview -->
+                    <div class="border-t border-white/10 pt-6 mb-8 space-y-3" id="stake-preview">
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Multiplier</span>
+                            <span class="text-sm font-mono text-white" id="preview-mult">3x</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Tier</span>
+                            <span class="text-sm text-white" id="preview-tier">⚖️ Architect</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Effective Weight</span>
+                            <span class="text-sm font-mono text-white" id="preview-weight">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Unlock Date</span>
+                            <span class="text-sm text-gray-400" id="preview-unlock">—</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] uppercase tracking-widest text-gray-500">Est. APY</span>
+                            <span class="text-sm font-mono text-white" id="preview-apy">~12.4%</span>
+                        </div>
+                    </div>
+
+                    <!-- Early Unstake Warning -->
+                    <div class="bg-yellow-500/5 border border-yellow-500/15 p-4 mb-6 flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5"></i>
+                        <p class="text-[11px] text-yellow-500/80 leading-relaxed">Early unstaking incurs a penalty of 1% per remaining month. Slashed tokens are burned permanently.</p>
+                    </div>
+
+                    <!-- Stake Button -->
+                    <button onclick="handleStake()" id="btn-stake" class="w-full py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center justify-center gap-3 disabled:bg-gray-900 disabled:text-gray-600 disabled:cursor-not-allowed" disabled>
+                        Enter Amount to Stake
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Buy XKI (connected) -->
+        <section class="py-8 px-6 md:px-8 pb-16">
+            <div class="max-w-2xl mx-auto">
+                <div class="glass-panel p-6 flex flex-col sm:flex-row items-center justify-between gap-4 parallax-section">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl">💱</span>
+                        <div>
+                            <p class="text-xs text-white">Need more XKI?</p>
+                            <p class="text-[10px] text-gray-600">Swap tokens directly on Uniswap</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <a href="#" class="px-4 py-2 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">Swap</a>
+                        <button onclick="addToMetamask()" class="px-4 py-2 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest hover:text-white hover:border-white/30 transition-colors">+ MetaMask</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- EARLY UNSTAKE MODAL                     -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="unstake-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center modal-backdrop">
+        <div class="glass-panel w-full max-w-md m-4 p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
+                    </div>
+                    <h3 class="text-lg font-serif text-white">Early Unstake</h3>
+                </div>
+                <button onclick="closeUnstakeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div class="bg-red-500/5 border border-red-500/15 p-4">
+                    <p class="text-xs text-red-400 leading-relaxed">
+                        You are unstaking before the lock period ends. A penalty will be applied and the slashed tokens will be <strong>permanently burned</strong>.
+                    </p>
+                </div>
+
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Staked Amount</span>
+                        <span class="text-sm font-mono text-white" id="modal-staked">100,000 XKI</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Months Remaining</span>
+                        <span class="text-sm font-mono text-gray-400" id="modal-months">4 months</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-red-400">Penalty (burned)</span>
+                        <span class="text-sm font-mono text-red-400" id="modal-penalty">-4,000 XKI</span>
+                    </div>
+                    <div class="h-[1px] bg-white/10"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">You Receive</span>
+                        <span class="text-lg font-mono text-white" id="modal-receive">96,000 XKI</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeUnstakeModal()" class="flex-1 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmUnstake()" class="flex-1 py-3 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/30 transition-colors">
+                    Confirm Unstake
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- STAKE CONFIRMATION MODAL                -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="stake-confirm-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center modal-backdrop">
+        <div class="glass-panel w-full max-w-md m-4 p-8">
+            <div class="flex justify-between items-start mb-6">
+                <h3 class="text-lg font-serif text-white">Confirm Stake</h3>
+                <button onclick="closeStakeModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 mb-6">
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Amount</span>
+                    <span class="text-sm font-mono text-white" id="confirm-amount">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Duration</span>
+                    <span class="text-sm text-white" id="confirm-duration">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Multiplier</span>
+                    <span class="text-sm font-mono text-white" id="confirm-mult">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Tier</span>
+                    <span class="text-sm text-white" id="confirm-tier">—</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Unlock Date</span>
+                    <span class="text-sm text-gray-400" id="confirm-unlock">—</span>
+                </div>
+                <div class="h-[1px] bg-white/10"></div>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] uppercase tracking-widest text-gray-500">Effective Weight</span>
+                    <span class="text-lg font-mono text-white" id="confirm-weight">—</span>
+                </div>
+            </div>
+
+            <div class="bg-white/5 border border-white/10 p-3 mb-6 flex items-start gap-2">
+                <i data-lucide="info" class="w-3 h-3 text-gray-500 flex-shrink-0 mt-0.5"></i>
+                <p class="text-[10px] text-gray-500 leading-relaxed">This will require an approval transaction followed by the stake transaction.</p>
+            </div>
+
+            <button onclick="executeStake()" class="w-full py-4 bg-white text-black text-xs font-bold uppercase tracking-[0.2em] hover:bg-gray-200 transition-colors flex items-center justify-center gap-2">
+                <i data-lucide="lock" class="w-3.5 h-3.5"></i>
+                Approve & Stake
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- FOOTER                                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <footer class="border-t border-white/5 bg-[#030303]">
+        <div class="max-w-6xl mx-auto px-6 md:px-8 py-10 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-white text-black flex items-center justify-center font-serif font-bold text-xs">K</div>
+                <span class="text-[10px] tracking-[0.2em] uppercase text-gray-600">Ki Foundation</span>
+            </div>
+            <div class="flex items-center gap-6">
+                <a href="/" class="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">Home</a>
+                <a href="/claim" class="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">Claim</a>
+                <a href="/guide" class="text-[10px] uppercase tracking-[0.2em] text-gray-600 hover:text-white transition-colors">Guide</a>
+            </div>
+            <p class="text-[10px] text-gray-700 uppercase tracking-[0.2em]">© 2026 Ki Foundation</p>
+        </div>
+    </footer>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- SCRIPTS                                 -->
+    <!-- ═══════════════════════════════════════ -->
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Intersection Observer
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+        document.querySelectorAll('.parallax-section, .stagger-children').forEach(el => observer.observe(el));
+
+        // Init simulator
+        setSimDuration(12);
+        setStakeDuration(2);
+    });
+
+    // ═══════════════════════════════════════
+    //  STATE
+    // ═══════════════════════════════════════
+    let isConnected = false;
+    let simDuration = 12;
+    let stakeTier = 2; // 0-4
+    const multipliers = { 3: 1, 6: 2, 12: 3, 24: 4, 36: 5 };
+    const tierNames = { 3: 'Explorer', 6: 'Builder', 12: 'Architect', 24: 'Founder', 36: 'Visionary' };
+    const tierEmojis = { 3: '🔭', 6: '🏗️', 12: '⚖️', 24: '🔑', 36: '🚀' };
+    const tierMonths = [3, 6, 12, 24, 36];
+    const tierMultipliers = [1, 2, 3, 4, 5];
+    const baseAPY = 0.124;
+
+    // ═══════════════════════════════════════
+    //  WALLET
+    // ═══════════════════════════════════════
+    function connectWallet() {
+        // Mock connection for now
+        isConnected = true;
+        document.getElementById('view-disconnected').classList.add('hidden');
+        document.getElementById('view-connected').classList.remove('hidden');
+        document.getElementById('btn-connect-nav').classList.add('hidden');
+        document.getElementById('wallet-connected-nav').classList.remove('hidden');
+        document.getElementById('wallet-connected-nav').classList.add('flex');
+
+        // Re-observe new elements
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(e => {
+                if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+        document.querySelectorAll('#view-connected .parallax-section, #view-connected .stagger-children').forEach(el => observer.observe(el));
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function disconnectWallet() {
+        isConnected = false;
+        document.getElementById('view-connected').classList.add('hidden');
+        document.getElementById('view-disconnected').classList.remove('hidden');
+        document.getElementById('btn-connect-nav').classList.remove('hidden');
+        document.getElementById('wallet-connected-nav').classList.add('hidden');
+        document.getElementById('wallet-connected-nav').classList.remove('flex');
+    }
+
+    // ═══════════════════════════════════════
+    //  SIMULATOR (disconnected)
+    // ═══════════════════════════════════════
+    function setSimDuration(months) {
+        simDuration = months;
+        document.querySelectorAll('#sim-duration-grid .tier-card').forEach(c => c.classList.remove('active'));
+        const idx = [3, 6, 12, 24, 36].indexOf(months);
+        const btns = document.querySelectorAll('#sim-duration-grid .tier-card');
+        if (idx >= 0 && btns[idx]) btns[idx].classList.add('active');
+        updateSimulator();
+    }
+
+    function updateSimulator() {
+        const amount = parseInt(document.getElementById('sim-amount').value);
+        const mult = multipliers[simDuration] || 1;
+        const power = amount * mult;
+        const monthly = ((amount * baseAPY) / 12) * mult;
+
+        document.getElementById('sim-amount-display').textContent = amount.toLocaleString() + ' XKI';
+        document.getElementById('sim-power').textContent = power.toLocaleString() + ' XKI';
+        document.getElementById('sim-tier').textContent = tierEmojis[simDuration] + ' ' + tierNames[simDuration];
+        document.getElementById('sim-monthly').textContent = '~$' + Math.round(monthly).toLocaleString();
+    }
+
+    // ═══════════════════════════════════════
+    //  NEW STAKE (connected)
+    // ═══════════════════════════════════════
+    function setStakeDuration(tier) {
+        stakeTier = tier;
+        document.querySelectorAll('#stake-duration-grid .tier-card').forEach(c => c.classList.remove('active'));
+        const btns = document.querySelectorAll('#stake-duration-grid .tier-card');
+        if (btns[tier]) btns[tier].classList.add('active');
+        updateStakePreview();
+    }
+
+    function updateStakePreview() {
+        const amount = parseInt(document.getElementById('stake-amount').value) || 0;
+        const mult = tierMultipliers[stakeTier];
+        const months = tierMonths[stakeTier];
+        const weight = amount * mult;
+
+        document.getElementById('preview-mult').textContent = mult + 'x';
+        document.getElementById('preview-tier').textContent = tierEmojis[months] + ' ' + tierNames[months];
+        document.getElementById('preview-weight').textContent = weight.toLocaleString();
+        document.getElementById('preview-apy').textContent = '~' + (baseAPY * 100).toFixed(1) + '%';
+
+        // Unlock date
+        if (amount > 0) {
+            const unlock = new Date();
+            unlock.setMonth(unlock.getMonth() + months);
+            document.getElementById('preview-unlock').textContent = unlock.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        } else {
+            document.getElementById('preview-unlock').textContent = '—';
+        }
+
+        // Button state
+        const btn = document.getElementById('btn-stake');
+        if (amount > 0) {
+            btn.disabled = false;
+            btn.textContent = 'Stake ' + amount.toLocaleString() + ' XKI';
+        } else {
+            btn.disabled = true;
+            btn.textContent = 'Enter Amount to Stake';
+        }
+    }
+
+    function setMaxStake() {
+        document.getElementById('stake-amount').value = 50000; // Mock balance
+        updateStakePreview();
+    }
+
+    function handleStake() {
+        const amount = parseInt(document.getElementById('stake-amount').value) || 0;
+        if (amount <= 0) return;
+
+        const mult = tierMultipliers[stakeTier];
+        const months = tierMonths[stakeTier];
+        const weight = amount * mult;
+        const unlock = new Date();
+        unlock.setMonth(unlock.getMonth() + months);
+
+        document.getElementById('confirm-amount').textContent = amount.toLocaleString() + ' XKI';
+        document.getElementById('confirm-duration').textContent = months + ' months';
+        document.getElementById('confirm-mult').textContent = mult + 'x';
+        document.getElementById('confirm-tier').textContent = tierEmojis[months] + ' ' + tierNames[months];
+        document.getElementById('confirm-unlock').textContent = unlock.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+        document.getElementById('confirm-weight').textContent = weight.toLocaleString();
+
+        document.getElementById('stake-confirm-modal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeStakeModal() {
+        document.getElementById('stake-confirm-modal').classList.add('hidden');
+    }
+
+    function executeStake() {
+        // Will connect to smart contract
+        alert('Staking will be connected to the smart contract. Approve + stake(amount, lockTier) on XKIStaking.');
+        closeStakeModal();
+    }
+
+    // ═══════════════════════════════════════
+    //  UNSTAKE
+    // ═══════════════════════════════════════
+    function showUnstakeModal(positionId) {
+        document.getElementById('unstake-modal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeUnstakeModal() {
+        document.getElementById('unstake-modal').classList.add('hidden');
+    }
+
+    function confirmUnstake() {
+        alert('Will call unstake(stakeId) on XKIStaking. earlyUnstakePreview() for slash calculation.');
+        closeUnstakeModal();
+    }
+
+    // ═══════════════════════════════════════
+    //  REWARDS
+    // ═══════════════════════════════════════
+    function claimRewards(positionId) {
+        alert('Will call claimRewards(rewardTokens[]) on XKIRewardDistributor');
+    }
+
+    function claimAll() {
+        alert('Will call claimRewards(allRewardTokens) on XKIRewardDistributor');
+    }
+
+    // ═══════════════════════════════════════
+    //  UTILS
+    // ═══════════════════════════════════════
+    function addToMetamask() {
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.request({
+                method: 'wallet_watchAsset',
+                params: { type: 'ERC20', options: { address: '0xa3421466', symbol: 'XKI', decimals: 18 } }
+            });
+        } else {
+            alert('MetaMask not detected');
+        }
+    }
+
+    function copyAddress() {
+        navigator.clipboard.writeText('0xa3421466');
+        const el = document.getElementById('token-address');
+        const orig = el.textContent;
+        el.textContent = 'Copied!';
+        setTimeout(() => el.textContent = orig, 1500);
+    }
+    </script>
+</body>
+</html>
