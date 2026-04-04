@@ -346,94 +346,89 @@
                 </div>
 
                 <div class="space-y-4" id="positions-list">
-                    <!-- Position 1 -->
+                    <!-- Position 1 — Active, earning rewards -->
                     <div class="glass-panel p-6 parallax-section">
                         <div class="flex flex-col lg:flex-row lg:items-center gap-6">
-                            <!-- Info -->
                             <div class="flex-grow">
                                 <div class="flex items-center gap-3 mb-3">
                                     <span class="text-[10px] uppercase tracking-widest text-gray-400 bg-white/5 px-2 py-1">Position #1</span>
-                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20">Earning</span>
                                     <span class="text-[9px] uppercase tracking-wider text-gray-500">⚖️ Architect · 3x</span>
                                 </div>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                                     <div>
                                         <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Amount</p>
                                         <p class="text-sm font-mono text-white">100,000 XKI</p>
                                     </div>
                                     <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Lock</p>
-                                        <p class="text-sm text-white">12 months</p>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Tier</p>
+                                        <p class="text-sm text-white">12 months · 3x</p>
                                     </div>
                                     <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Started</p>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Staked Since</p>
                                         <p class="text-sm text-gray-400">15 Apr 2026</p>
                                     </div>
-                                    <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Unlocks</p>
-                                        <p class="text-sm text-white">15 Apr 2027</p>
-                                    </div>
                                 </div>
-                                <!-- Progress -->
-                                <div class="flex items-center gap-3">
-                                    <div class="flex-grow progress-bar h-1.5">
-                                        <div class="progress-fill" style="width: 65%"></div>
-                                    </div>
-                                    <span class="text-[10px] font-mono text-gray-500 whitespace-nowrap">65% elapsed</span>
+                                <div class="flex items-center gap-2 text-[10px] text-gray-500">
+                                    <i data-lucide="info" class="w-3 h-3"></i>
+                                    <span>Cooldown to unstake: <strong class="text-white">12 months</strong> · Or hard unstake now (10% burn)</span>
                                 </div>
                             </div>
-                            <!-- Actions -->
-                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[140px]">
+                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[160px]">
                                 <button onclick="claimRewards(1)" class="flex-1 lg:flex-none py-2.5 px-4 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors text-center">
                                     Claim Rewards
                                 </button>
-                                <button onclick="showUnstakeModal(1)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center">
-                                    Early Unstake
+                                <button onclick="requestCooldown(1)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest hover:text-white hover:border-white/40 transition-colors text-center flex items-center justify-center gap-1">
+                                    <i data-lucide="clock" class="w-3 h-3"></i> Cooldown
+                                </button>
+                                <button onclick="showHardUnstakeModal(1)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-600 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center flex items-center justify-center gap-1">
+                                    <i data-lucide="zap" class="w-3 h-3"></i> Hard Unstake
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Position 2 -->
-                    <div class="glass-panel p-6 parallax-section">
+                    <!-- Position 2 — In Cooldown -->
+                    <div class="glass-panel p-6 parallax-section border-yellow-500/10">
                         <div class="flex flex-col lg:flex-row lg:items-center gap-6">
                             <div class="flex-grow">
                                 <div class="flex items-center gap-3 mb-3">
                                     <span class="text-[10px] uppercase tracking-widest text-gray-400 bg-white/5 px-2 py-1">Position #2</span>
-                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+                                    <span class="text-[9px] uppercase tracking-wider px-2 py-0.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">Cooldown</span>
                                     <span class="text-[9px] uppercase tracking-wider text-gray-500">🏗️ Builder · 2x</span>
                                 </div>
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                                <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
                                     <div>
                                         <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Amount</p>
                                         <p class="text-sm font-mono text-white">50,000 XKI</p>
                                     </div>
                                     <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Lock</p>
-                                        <p class="text-sm text-white">6 months</p>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Tier</p>
+                                        <p class="text-sm text-white">6 months · 2x</p>
                                     </div>
                                     <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Started</p>
-                                        <p class="text-sm text-gray-400">1 May 2026</p>
-                                    </div>
-                                    <div>
-                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Unlocks</p>
-                                        <p class="text-sm text-white">1 Nov 2026</p>
+                                        <p class="text-[9px] uppercase tracking-widest text-gray-600 mb-1">Cooldown Ends</p>
+                                        <p class="text-sm text-yellow-400">1 Nov 2026</p>
                                     </div>
                                 </div>
-                                <div class="flex items-center gap-3">
+                                <!-- Cooldown Progress -->
+                                <div class="flex items-center gap-3 mb-2">
                                     <div class="flex-grow progress-bar h-1.5">
-                                        <div class="progress-fill" style="width: 35%"></div>
+                                        <div class="progress-fill bg-yellow-500/40" style="width: 35%"></div>
                                     </div>
-                                    <span class="text-[10px] font-mono text-gray-500 whitespace-nowrap">35% elapsed</span>
+                                    <span class="text-[10px] font-mono text-yellow-500 whitespace-nowrap">~4 months left</span>
+                                </div>
+                                <div class="flex items-center gap-2 text-[10px] text-yellow-500/60">
+                                    <i data-lucide="alert-circle" class="w-3 h-3"></i>
+                                    <span>No rewards during cooldown · Weight removed</span>
                                 </div>
                             </div>
-                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[140px]">
-                                <button onclick="claimRewards(2)" class="flex-1 lg:flex-none py-2.5 px-4 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors text-center">
-                                    Claim Rewards
+                            <div class="flex flex-row lg:flex-col gap-2 lg:min-w-[160px]">
+                                <button disabled class="flex-1 lg:flex-none py-2.5 px-4 bg-gray-900 text-gray-600 text-[10px] font-bold uppercase tracking-widest cursor-not-allowed text-center">
+                                    Waiting...
                                 </button>
-                                <button onclick="showUnstakeModal(2)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-500 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center">
-                                    Early Unstake
+                                <button onclick="showHardUnstakeModal(2)" class="flex-1 lg:flex-none py-2.5 px-4 border border-white/10 text-gray-600 text-[10px] uppercase tracking-widest hover:text-red-400 hover:border-red-900 transition-colors text-center flex items-center justify-center gap-1">
+                                    <i data-lucide="zap" class="w-3 h-3"></i> Hard Unstake Now
                                 </button>
                             </div>
                         </div>
@@ -601,10 +596,16 @@
                         </div>
                     </div>
 
-                    <!-- Early Unstake Warning -->
-                    <div class="bg-yellow-500/5 border border-yellow-500/15 p-4 mb-6 flex items-start gap-3">
-                        <i data-lucide="alert-triangle" class="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5"></i>
-                        <p class="text-[11px] text-yellow-500/80 leading-relaxed">Early unstaking incurs a penalty of 1% per remaining month. Slashed tokens are burned permanently.</p>
+                    <!-- Unstake Info -->
+                    <div class="bg-white/5 border border-white/10 p-4 mb-6 space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="clock" class="w-4 h-4 text-gray-400 flex-shrink-0 mt-0.5"></i>
+                            <p class="text-[11px] text-gray-400 leading-relaxed"><strong class="text-white">Cooldown unstake:</strong> Request unstake → wait the cooldown period (= tier duration) → withdraw 100%. No rewards during cooldown.</p>
+                        </div>
+                        <div class="flex items-start gap-3">
+                            <i data-lucide="zap" class="w-4 h-4 text-yellow-500 flex-shrink-0 mt-0.5"></i>
+                            <p class="text-[11px] text-yellow-500/80 leading-relaxed"><strong class="text-yellow-400">Hard unstake:</strong> Withdraw immediately — 10% of your stake is burned permanently, 90% returned.</p>
+                        </div>
                     </div>
 
                     <!-- Stake Button -->
@@ -636,18 +637,21 @@
     </div>
 
     <!-- ═══════════════════════════════════════ -->
-    <!-- EARLY UNSTAKE MODAL                     -->
+    <!-- HARD UNSTAKE MODAL                      -->
     <!-- ═══════════════════════════════════════ -->
-    <div id="unstake-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center modal-backdrop">
+    <div id="hard-unstake-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center modal-backdrop">
         <div class="glass-panel w-full max-w-md m-4 p-8">
             <div class="flex justify-between items-start mb-6">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 bg-red-500/10 border border-red-500/20 rounded-full flex items-center justify-center">
-                        <i data-lucide="alert-triangle" class="w-5 h-5 text-red-400"></i>
+                        <i data-lucide="zap" class="w-5 h-5 text-red-400"></i>
                     </div>
-                    <h3 class="text-lg font-serif text-white">Early Unstake</h3>
+                    <div>
+                        <h3 class="text-lg font-serif text-white">Hard Unstake</h3>
+                        <p class="text-[10px] text-gray-500">Immediate withdrawal</p>
+                    </div>
                 </div>
-                <button onclick="closeUnstakeModal()" class="text-gray-500 hover:text-white transition-colors">
+                <button onclick="closeHardUnstakeModal()" class="text-gray-500 hover:text-white transition-colors">
                     <i data-lucide="x" class="w-5 h-5"></i>
                 </button>
             </div>
@@ -655,7 +659,7 @@
             <div class="space-y-4 mb-6">
                 <div class="bg-red-500/5 border border-red-500/15 p-4">
                     <p class="text-xs text-red-400 leading-relaxed">
-                        You are unstaking before the lock period ends. A penalty will be applied and the slashed tokens will be <strong>permanently burned</strong>.
+                        <strong>10% of your staked amount will be permanently burned.</strong> This action is irreversible. Consider using the cooldown unstake to get 100% back.
                     </p>
                 </div>
 
@@ -665,27 +669,90 @@
                         <span class="text-sm font-mono text-white" id="modal-staked">100,000 XKI</span>
                     </div>
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Months Remaining</span>
-                        <span class="text-sm font-mono text-gray-400" id="modal-months">4 months</span>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span class="text-[10px] uppercase tracking-widest text-red-400">Penalty (burned)</span>
-                        <span class="text-sm font-mono text-red-400" id="modal-penalty">-4,000 XKI</span>
+                        <span class="text-[10px] uppercase tracking-widest text-red-400">Burn (10%)</span>
+                        <span class="text-sm font-mono text-red-400" id="modal-burn">-10,000 XKI</span>
                     </div>
                     <div class="h-[1px] bg-white/10"></div>
                     <div class="flex justify-between items-center">
-                        <span class="text-[10px] uppercase tracking-widest text-gray-500">You Receive</span>
-                        <span class="text-lg font-mono text-white" id="modal-receive">96,000 XKI</span>
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">You Receive (90%)</span>
+                        <span class="text-lg font-mono text-white" id="modal-receive">90,000 XKI</span>
                     </div>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 p-3 flex items-start gap-2">
+                    <i data-lucide="clock" class="w-3 h-3 text-gray-500 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[10px] text-gray-500 leading-relaxed">
+                        Alternative: use <strong class="text-white">Cooldown Unstake</strong> to wait <span id="modal-cooldown-alt">12 months</span> and get 100% back.
+                    </p>
                 </div>
             </div>
 
             <div class="flex gap-3">
-                <button onclick="closeUnstakeModal()" class="flex-1 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                <button onclick="closeHardUnstakeModal()" class="flex-1 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
                     Cancel
                 </button>
-                <button onclick="confirmUnstake()" class="flex-1 py-3 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/30 transition-colors">
-                    Confirm Unstake
+                <button onclick="confirmHardUnstake()" class="flex-1 py-3 bg-red-500/20 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-widest hover:bg-red-500/30 transition-colors">
+                    Burn 10% & Withdraw
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════ -->
+    <!-- COOLDOWN REQUEST MODAL                  -->
+    <!-- ═══════════════════════════════════════ -->
+    <div id="cooldown-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center modal-backdrop">
+        <div class="glass-panel w-full max-w-md m-4 p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-yellow-500/10 border border-yellow-500/20 rounded-full flex items-center justify-center">
+                        <i data-lucide="clock" class="w-5 h-5 text-yellow-400"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-serif text-white">Start Cooldown</h3>
+                        <p class="text-[10px] text-gray-500">Get 100% back after waiting period</p>
+                    </div>
+                </div>
+                <button onclick="closeCooldownModal()" class="text-gray-500 hover:text-white transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-4 mb-6">
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Staked Amount</span>
+                        <span class="text-sm font-mono text-white" id="cd-modal-staked">100,000 XKI</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Cooldown Period</span>
+                        <span class="text-sm font-mono text-yellow-400" id="cd-modal-period">12 months</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">Available After</span>
+                        <span class="text-sm text-gray-400" id="cd-modal-date">~Apr 2027</span>
+                    </div>
+                    <div class="h-[1px] bg-white/10"></div>
+                    <div class="flex justify-between items-center">
+                        <span class="text-[10px] uppercase tracking-widest text-gray-500">You Receive</span>
+                        <span class="text-lg font-mono text-green-400" id="cd-modal-receive">100,000 XKI (100%)</span>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-500/5 border border-yellow-500/15 p-3 flex items-start gap-2">
+                    <i data-lucide="alert-circle" class="w-3 h-3 text-yellow-500 flex-shrink-0 mt-0.5"></i>
+                    <p class="text-[10px] text-yellow-500/80 leading-relaxed">
+                        Your staking weight will be removed immediately. <strong>No rewards during cooldown.</strong> You can still hard unstake (10% burn) during the cooldown period.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="closeCooldownModal()" class="flex-1 py-3 border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest hover:bg-white/5 transition-colors">
+                    Cancel
+                </button>
+                <button onclick="confirmCooldown()" class="flex-1 py-3 bg-white text-black text-[10px] font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
+                    Start Cooldown
                 </button>
             </div>
         </div>
@@ -929,20 +996,62 @@
     }
 
     // ═══════════════════════════════════════
-    //  UNSTAKE
+    //  HARD UNSTAKE
     // ═══════════════════════════════════════
-    function showUnstakeModal(positionId) {
-        document.getElementById('unstake-modal').classList.remove('hidden');
+    function showHardUnstakeModal(positionId) {
+        // Mock data — will read from contract
+        const amounts = { 1: 100000, 2: 50000 };
+        const cooldowns = { 1: '12 months', 2: '6 months' };
+        const amount = amounts[positionId] || 100000;
+        const burn = Math.round(amount * 0.1);
+        const receive = amount - burn;
+
+        document.getElementById('modal-staked').textContent = amount.toLocaleString() + ' XKI';
+        document.getElementById('modal-burn').textContent = '-' + burn.toLocaleString() + ' XKI';
+        document.getElementById('modal-receive').textContent = receive.toLocaleString() + ' XKI';
+        document.getElementById('modal-cooldown-alt').textContent = cooldowns[positionId] || '12 months';
+
+        document.getElementById('hard-unstake-modal').classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    function closeUnstakeModal() {
-        document.getElementById('unstake-modal').classList.add('hidden');
+    function closeHardUnstakeModal() {
+        document.getElementById('hard-unstake-modal').classList.add('hidden');
     }
 
-    function confirmUnstake() {
-        alert('Will call unstake(stakeId) on XKIStaking. earlyUnstakePreview() for slash calculation.');
-        closeUnstakeModal();
+    function confirmHardUnstake() {
+        alert('Will call hardUnstake(stakeId) on XKIStaking — 10% burned, 90% returned.');
+        closeHardUnstakeModal();
+    }
+
+    // ═══════════════════════════════════════
+    //  COOLDOWN REQUEST
+    // ═══════════════════════════════════════
+    function requestCooldown(positionId) {
+        const amounts = { 1: 100000, 2: 50000 };
+        const periods = { 1: '12 months', 2: '6 months' };
+        const months = { 1: 12, 2: 6 };
+        const amount = amounts[positionId] || 100000;
+
+        const endDate = new Date();
+        endDate.setMonth(endDate.getMonth() + (months[positionId] || 12));
+
+        document.getElementById('cd-modal-staked').textContent = amount.toLocaleString() + ' XKI';
+        document.getElementById('cd-modal-period').textContent = periods[positionId] || '12 months';
+        document.getElementById('cd-modal-date').textContent = '~' + endDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        document.getElementById('cd-modal-receive').textContent = amount.toLocaleString() + ' XKI (100%)';
+
+        document.getElementById('cooldown-modal').classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function closeCooldownModal() {
+        document.getElementById('cooldown-modal').classList.add('hidden');
+    }
+
+    function confirmCooldown() {
+        alert('Will call requestUnstake(stakeId) on XKIStaking — cooldown starts, weight removed immediately.');
+        closeCooldownModal();
     }
 
     // ═══════════════════════════════════════
