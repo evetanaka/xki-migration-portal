@@ -488,50 +488,53 @@
                 <h2 class="text-3xl md:text-5xl font-serif text-white">Staking Tiers</h2>
             </div>
 
-            <!-- Tiers Table -->
-            <div class="overflow-x-auto mb-16 parallax-section">
-                <table class="w-full min-w-[640px]">
-                    <thead>
-                        <tr class="border-b border-white/10">
-                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Duration</th>
-                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Multiplier</th>
-                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Status</th>
-                            <th class="text-left text-[10px] uppercase tracking-widest text-gray-500 pb-4 font-normal">Benefits</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="py-5 text-sm text-white font-serif">3 months</td>
-                            <td class="py-5"><span class="text-sm font-mono text-white">1x</span></td>
-                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Explorer</span></td>
-                            <td class="py-5 text-xs text-gray-500">Base rewards from all ecosystem projects</td>
-                        </tr>
-                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="py-5 text-sm text-white font-serif">6 months</td>
-                            <td class="py-5"><span class="text-sm font-mono text-white">2x</span></td>
-                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Builder</span></td>
-                            <td class="py-5 text-xs text-gray-500">+ Early access to new projects</td>
-                        </tr>
-                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="py-5 text-sm text-white font-serif">12 months</td>
-                            <td class="py-5"><span class="text-sm font-mono text-white">3x</span></td>
-                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Architect</span></td>
-                            <td class="py-5 text-xs text-gray-500">+ Governance voting power</td>
-                        </tr>
-                        <tr class="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                            <td class="py-5 text-sm text-white font-serif">24 months</td>
-                            <td class="py-5"><span class="text-sm font-mono text-white">4x</span></td>
-                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Founder</span></td>
-                            <td class="py-5 text-xs text-gray-500">+ Fee discount across ecosystem</td>
-                        </tr>
-                        <tr class="hover:bg-white/[0.02] transition-colors">
-                            <td class="py-5 text-sm text-white font-serif">36 months</td>
-                            <td class="py-5"><span class="text-sm font-mono text-white">5x</span></td>
-                            <td class="py-5"><span class="text-[10px] uppercase tracking-wider text-gray-400">Visionary</span></td>
-                            <td class="py-5 text-xs text-gray-500">+ Exclusive allocations in new launches</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- Tiers Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-16 stagger-children">
+                <!-- 3 months -->
+                <div class="glass-panel p-6 hover-lift text-center relative overflow-hidden">
+                    <div class="text-3xl mb-3">🔭</div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">3 months</p>
+                    <h4 class="font-serif text-white text-sm mb-2">Explorer</h4>
+                    <div class="text-2xl font-mono text-white font-bold mb-4">1x</div>
+                    <div class="h-[1px] bg-white/10 mb-4"></div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Base rewards from all ecosystem projects</p>
+                </div>
+                <!-- 6 months -->
+                <div class="glass-panel p-6 hover-lift text-center relative overflow-hidden">
+                    <div class="text-3xl mb-3">🏗️</div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">6 months</p>
+                    <h4 class="font-serif text-white text-sm mb-2">Builder</h4>
+                    <div class="text-2xl font-mono text-white font-bold mb-4">2x</div>
+                    <div class="h-[1px] bg-white/10 mb-4"></div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Early access to ecosystem projects</p>
+                </div>
+                <!-- 12 months -->
+                <div class="glass-panel p-6 hover-lift text-center relative overflow-hidden border-white/15">
+                    <div class="text-3xl mb-3">⚖️</div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">12 months</p>
+                    <h4 class="font-serif text-white text-sm mb-2">Architect</h4>
+                    <div class="text-2xl font-mono text-white font-bold mb-4">3x</div>
+                    <div class="h-[1px] bg-white/10 mb-4"></div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Governance voting power</p>
+                </div>
+                <!-- 24 months -->
+                <div class="glass-panel p-6 hover-lift text-center relative overflow-hidden">
+                    <div class="text-3xl mb-3">🔑</div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">24 months</p>
+                    <h4 class="font-serif text-white text-sm mb-2">Founder</h4>
+                    <div class="text-2xl font-mono text-white font-bold mb-4">4x</div>
+                    <div class="h-[1px] bg-white/10 mb-4"></div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Ecosystem projects private sale access</p>
+                </div>
+                <!-- 36 months -->
+                <div class="glass-panel p-6 hover-lift text-center relative overflow-hidden">
+                    <div class="text-3xl mb-3">🚀</div>
+                    <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-1">36 months</p>
+                    <h4 class="font-serif text-white text-sm mb-2">Visionary</h4>
+                    <div class="text-2xl font-mono text-white font-bold mb-4">5x</div>
+                    <div class="h-[1px] bg-white/10 mb-4"></div>
+                    <p class="text-[11px] text-gray-500 leading-relaxed">Ecosystem projects TGE Airdrops</p>
+                </div>
             </div>
 
             <!-- Simulator -->
