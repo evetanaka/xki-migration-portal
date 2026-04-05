@@ -138,7 +138,6 @@
                     <h2 class="text-2xl font-serif text-white mb-2">Choose Your Commitment</h2>
                     <p class="text-xs text-gray-500">Higher lock duration = higher multiplier = more rewards</p>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 stagger-children">
                 <div class="glass-panel overflow-hidden parallax-section">
                 <table class="w-full">
                     <thead>
@@ -195,7 +194,21 @@
                     </tbody>
                 </table>
                 </div>
+            </div>
+        </section>
 
+        <!-- Simulator -->
+        <section class="py-12 px-6 md:px-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="glass-panel p-8 md:p-12 parallax-section">
+                    <h3 class="text-xs uppercase tracking-[0.2em] text-gray-400 mb-8 text-center font-serif">Rewards Simulator</h3>
+                    <div class="space-y-8">
+                        <div>
+                            <div class="flex justify-between items-end mb-3">
+                                <label class="text-[10px] uppercase tracking-widest text-gray-500">Stake Amount</label>
+                                <span id="sim-amount-display" class="text-lg font-mono text-white">100,000 XKI</span>
+                            </div>
+                            <input type="range" id="sim-amount" min="1000" max="10000000" value="100000" step="1000" oninput="updateSimulator()">
                             <div class="flex justify-between text-[9px] text-gray-600 mt-1"><span>1K</span><span>10M</span></div>
                         </div>
                         <div>
