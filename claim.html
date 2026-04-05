@@ -74,34 +74,32 @@
     <div class="absolute inset-0 z-0 pointer-events-none opacity-20" style="background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 100px 100px;"></div>
 
     <!-- Navigation -->
-    <nav class="relative z-10 w-full px-8 py-6 flex justify-between items-center border-b border-white/10">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
-            <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400">Foundation</span>
-        </div>
-        <div class="flex items-center gap-6">
-            <a href="/" class="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="home" class="w-3 h-3"></i>
-                Home
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-xl">
+        <div class="max-w-7xl mx-auto px-6 md:px-8 py-4 flex justify-between items-center">
+            <a href="/" class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-white text-black flex items-center justify-center font-serif font-bold text-lg">K</div>
+                <span class="text-sm tracking-[0.2em] uppercase font-light text-gray-400 hidden sm:inline">Foundation</span>
             </a>
-            <a href="/guide" class="hidden md:flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">
-                <i data-lucide="book-open" class="w-3 h-3"></i>
-                Guide
-            </a>
-            <div id="wallet-container" class="flex items-center gap-2">
-                <button id="wallet-connect-btn" onclick="handleHeaderConnect()" class="px-4 py-2 border border-white/20 text-gray-400 text-[10px] uppercase tracking-widest transition-all duration-500 hover:bg-white hover:text-black cursor-pointer flex items-center gap-2">
-                    <i data-lucide="wallet" class="w-3 h-3"></i>
-                    Connect Keplr
-                </button>
-                <button id="wallet-disconnect-btn" onclick="handleDisconnect()" class="hidden px-2 py-2 border border-white/10 text-gray-500 hover:text-red-400 hover:border-red-900 transition-all cursor-pointer" title="Disconnect">
-                    <i data-lucide="log-out" class="w-3 h-3"></i>
-                </button>
+            <div class="flex items-center gap-4 md:gap-6">
+                <a href="/#ecosystem" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Ecosystem</a>
+                <a href="/#staking" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Staking</a>
+                <a href="/#tokenomics" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Tokenomics</a>
+                <a href="/claim" class="hidden md:block text-[10px] uppercase tracking-widest text-gray-500 hover:text-white transition-colors">Claim</a>
+                <div id="wallet-container" class="flex items-center gap-2">
+                    <button id="wallet-connect-btn" onclick="handleHeaderConnect()" class="px-4 py-2 bg-white text-black text-[10px] uppercase tracking-widest font-bold hover:bg-gray-200 transition-colors flex items-center gap-2">
+                        <i data-lucide="wallet" class="w-3 h-3"></i>
+                        Connect Keplr
+                    </button>
+                    <button id="wallet-disconnect-btn" onclick="handleDisconnect()" class="hidden px-3 py-2 border border-white/10 text-gray-500 hover:text-red-400 hover:border-red-900 transition-all" title="Disconnect">
+                        <i data-lucide="log-out" class="w-3 h-3"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
     <!-- Main Content -->
-    <main class="flex-grow flex flex-col justify-center items-center relative z-10 px-4 py-12">
+    <main class="flex-grow flex flex-col justify-center items-center relative z-10 px-4 py-12 pt-24">
         <!-- Header -->
         <header class="text-center mb-16 fade-in">
             <h1 class="text-4xl md:text-6xl lg:text-7xl font-serif text-white mb-4 tracking-wide">
