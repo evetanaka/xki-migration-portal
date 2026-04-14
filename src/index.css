@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Cinzel', serif;
+  --font-sans: 'Manrope', sans-serif;
+  --color-bg: #050505;
+}
+
+/* ─── Global Reset ─── */
+:root { --bg: #050505; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Manrope', sans-serif; background: var(--bg); color: white; }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+/* ─── Shared Components ─── */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.gradient-text {
+  background: linear-gradient(180deg, #ffffff 0%, #999999 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ─── Parallax Animations ─── */
+.parallax-section {
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform 0.9s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.9s ease;
+}
+.parallax-section.visible {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.stagger-children > * {
+  transform: translateY(30px);
+  opacity: 0;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.7s ease;
+}
+.stagger-children.visible > *:nth-child(1) { transition-delay: 0s; transform: translateY(0); opacity: 1; }
+.stagger-children.visible > *:nth-child(2) { transition-delay: 0.1s; transform: translateY(0); opacity: 1; }
+.stagger-children.visible > *:nth-child(3) { transition-delay: 0.15s; transform: translateY(0); opacity: 1; }
+.stagger-children.visible > *:nth-child(4) { transition-delay: 0.2s; transform: translateY(0); opacity: 1; }
+.stagger-children.visible > *:nth-child(5) { transition-delay: 0.25s; transform: translateY(0); opacity: 1; }
+
+.line-reveal {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.line-reveal.visible {
+  transform: scaleX(1);
+}
+
+/* ─── Network Canvas ─── */
+.network-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.6;
+}
+
+/* ─── Tier Cards ─── */
+.tier-card {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+}
+.tier-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+.tier-card.active {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.05);
+}
